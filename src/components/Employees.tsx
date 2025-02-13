@@ -1,34 +1,20 @@
-// src/components/Employees.tsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   DragDropContext,
   Droppable,
   Draggable,
-  DropResult
+  DropResult,
+  DroppableProvided,
+  DraggableProvided,
+  DraggableStateSnapshot,
 } from 'react-beautiful-dnd';
 import { Edit2, Trash2 } from 'lucide-react';
-import { Employee, Position } from '../types';
-import {
-  employees as initialEmployees,
-  positions as initialPositions,
-  organizations
-} from '../data/mockData';
-import { Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import { fetchEmployees, fetchPositions, fetchOrganizations } from '../data/api';
+import { Employee, Position, Organization } from '../types';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+// Instalar @types/react-beautiful-dnd caso ainda não tenha
+// npm i --save-dev @types/react-beautiful-dnd
 
-/**
- * Modal para editar ou adicionar um servidor.
- */
 type EditModalProps = {
   employee: Employee;
   isOpen: boolean;
@@ -52,9 +38,8 @@ function EditModal({ employee, isOpen, onClose, onSave }: EditModalProps) {
         <h2 className="text-xl font-bold mb-4">
           {employee.id.startsWith('vacant-') ? 'Adicionar Servidor' : 'Editar Servidor'}
         </h2>
-        
+
         <div className="space-y-4">
-          {/* Nome Servidor */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Nome Servidor</label>
             <input
@@ -66,64 +51,13 @@ function EditModal({ employee, isOpen, onClose, onSave }: EditModalProps) {
               }
             />
           </div>
-          {/* Redistribuição */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Redistribuição</label>
-            <select
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              value={editedEmployee.redistribuicao}
-              onChange={(e) =>
-                setEditedEmployee({ ...editedEmployee, redistribuicao: e.target.value })
-              }
-            >
-              <option value="Não">Não</option>
-              <option value="Sim">Sim</option>
-              <option value="Vago">Vago</option>
-            </select>
-          </div>
-          {/* Dt Publicação em D.O. */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Data de Publicação</label>
-            <input
-              type="date"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              value={
-                editedEmployee.dtPublicacao
-                  ? editedEmployee.dtPublicacao.split('/').reverse().join('-')
-                  : ''
-              }
-              onChange={(e) => {
-                const date = new Date(e.target.value);
-                const formattedDate = date.toLocaleDateString('pt-BR');
-                setEditedEmployee({ ...editedEmployee, dtPublicacao: formattedDate });
-              }}
-            />
-          </div>
-          {/* Valor C.C. */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Valor C.C.</label>
-            <input
-              type="number"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              value={editedEmployee.valorCC}
-              onChange={(e) =>
-                setEditedEmployee({ ...editedEmployee, valorCC: Number(e.target.value) })
-              }
-            />
-          </div>
         </div>
 
         <div className="mt-6 flex justify-end space-x-3">
-          <button
-            className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50"
-            onClick={onClose}
-          >
+          <button className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50" onClick={onClose}>
             Cancelar
           </button>
-          <button
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            onClick={handleSave}
-          >
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" onClick={handleSave}>
             Salvar
           </button>
         </div>
@@ -132,124 +66,65 @@ function EditModal({ employee, isOpen, onClose, onSave }: EditModalProps) {
   );
 }
 
-/**
- * Componente principal: tela de Servidores (Employees)
- */
 export function Employees() {
-  // DEFINIMOS O ÓRGÃO INICIAL --> 'CACIVIL'
-  const [selectedOrgan, setSelectedOrgan] = useState<string>(organizations[0].sigla);
-
-  // Lista de posições e employees mockados (vide mockData)
-  const [positionsData, setPositionsData] = useState<Position[]>(initialPositions);
-  const [employeesData, setEmployeesData] = useState<Employee[]>(initialEmployees);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [positions, setPositions] = useState<Position[]>([]);
+  const [selectedOrgan, setSelectedOrgan] = useState<string>('');
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
-  // Monta as linhas do DataTable para o órgão selecionado
+  useEffect(() => {
+    fetchOrganizations().then(setOrganizations);
+    fetchEmployees().then(setEmployees);
+    fetchPositions().then(setPositions);
+  }, []);
+
+  useEffect(() => {
+    if (organizations.length > 0) {
+      setSelectedOrgan(organizations[0].sigla);
+    }
+  }, [organizations]);
+
   const organizationRows = useMemo(() => {
-    const filteredEmployees = employeesData.filter(
-      (emp) => emp.secretaria === selectedOrgan
-    );
+    const filteredEmployees = employees.filter((emp) => emp.secretaria === selectedOrgan);
 
-    return positionsData.map((position) => {
+    return positions.map((position) => {
       const emp = filteredEmployees.find((e) => e.cargo.id === position.id);
-      if (emp) {
-        return emp;
-      } else {
-        // Se não houver employee, significa VAGO
-        return {
-          id: `vacant-${position.id}`,
-          nomeServidor: '',
-          cargo: position,
-          status: 'Vago',
-          redistribuicao: 'Não',
-          dtPublicacao: '',
-          valorCC: 0,
-          secretaria: selectedOrgan,
-        } as Employee;
-      }
+      return emp || {
+        id: `vacant-${position.id}`,
+        nomeServidor: '',
+        cargo: position,
+        status: 'Vago' as 'Vago' | 'Provido', // Corrigido o erro de tipagem
+        redistribuicao: 'Não',
+        dtPublicacao: '',
+        valorCC: 0,
+        secretaria: selectedOrgan,
+      };
     });
-  }, [selectedOrgan, positionsData, employeesData]);
+  }, [selectedOrgan, positions, employees]);
 
-  // Soma do "Valor C.C." dos cargos providos
-  const totalCC = useMemo(() => {
-    return organizationRows.reduce((total, row) => {
-      return total + (row.status === 'Provido' ? (row.valorCC ?? 0) : 0);
-    }, 0);
-  }, [organizationRows]);
-
-  // Função para reordenar (drag & drop)
-  const onDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
-    const newPositions = Array.from(positionsData);
-    const [removed] = newPositions.splice(result.source.index, 1);
-    newPositions.splice(result.destination.index, 0, removed);
-    setPositionsData(newPositions);
-  };
-
-  // Adicionar ou editar servidor
   const handleSaveEmployee = (updatedEmployee: Employee) => {
     if (updatedEmployee.id.startsWith('vacant-')) {
-      // Criar novo (linhas "vagas")
-      const newEmployee: Employee = {
-        ...updatedEmployee,
-        id: String(new Date().getTime()),
-        status: 'Provido',
-        valorCC: updatedEmployee.valorCC ?? 0,
-      };
-      setEmployeesData([...employeesData, newEmployee]);
+      setEmployees([...employees, { ...updatedEmployee, id: String(new Date().getTime()), status: 'Provido' }]);
     } else {
-      // Atualizar
-      setEmployeesData(
-        employeesData.map((emp) =>
-          emp.id === updatedEmployee.id ? { ...updatedEmployee } : emp
-        )
-      );
+      setEmployees(employees.map((emp) => (emp.id === updatedEmployee.id ? { ...updatedEmployee } : emp)));
     }
   };
 
-  // Excluir servidor
   const handleDeleteEmployee = (employee: Employee) => {
     if (window.confirm('Tem certeza que deseja excluir este servidor?')) {
-      setEmployeesData(employeesData.filter((emp) => emp.id !== employee.id));
+      setEmployees(employees.filter((emp) => emp.id !== employee.id));
     }
-  };
-
-  // Gráfico "Provido" vs. "Vago"
-  const chartData = useMemo(() => {
-    const providoCount = organizationRows.filter((row) => row.status === 'Provido').length;
-    const vagoCount = organizationRows.filter((row) => row.status === 'Vago').length;
-    return {
-      labels: ['Provido', 'Vago'],
-      datasets: [
-        {
-          label: 'Cargos',
-          data: [providoCount, vagoCount],
-          backgroundColor: ['rgba(75, 192, 192, 0.5)', 'rgba(255, 99, 132, 0.5)'],
-          borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
-          borderWidth: 1,
-        },
-      ],
-    };
-  }, [organizationRows]);
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
   };
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Gerenciamento de Servidores</h1>
 
-      {/* Filtro de Órgão */}
       <div className="mb-4">
         <label className="mr-2 font-medium">Selecione o Órgão:</label>
-        <select
-          className="p-2 border rounded-lg"
-          value={selectedOrgan}
-          onChange={(e) => setSelectedOrgan(e.target.value)}
-        >
-          {organizations.map((org) => (
+        <select className="p-2 border rounded-lg" value={selectedOrgan} onChange={(e) => setSelectedOrgan(e.target.value)}>
+          {organizations.map((org: Organization) => (
             <option key={org.codigo} value={org.sigla}>
               {org.nome} ({org.sigla})
             </option>
@@ -257,83 +132,33 @@ export function Employees() {
         </select>
       </div>
 
-      {/* Tabela com Drag & Drop */}
-      <DragDropContext onDragEnd={onDragEnd}>
+      <DragDropContext onDragEnd={(result: DropResult) => {
+        if (!result.destination) return;
+        const newPositions = Array.from(positions);
+        const [removed] = newPositions.splice(result.source.index, 1);
+        newPositions.splice(result.destination.index, 0, removed);
+        setPositions(newPositions);
+      }}>
         <Droppable droppableId="table">
-          {(provided) => (
-            <table
-              className="min-w-full border-collapse mb-4"
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-            >
+          {(provided: DroppableProvided) => (
+            <table className="min-w-full border-collapse mb-4" ref={provided.innerRef} {...provided.droppableProps}>
               <thead>
                 <tr className="bg-gray-200">
-                  <th className="border px-4 py-2">Nº</th>
-                  <th className="border px-4 py-2">Cargo Genérico</th>
-                  <th className="border px-4 py-2">Símbolo</th>
-                  <th className="border px-4 py-2">Nome Servidor</th>
-                  <th className="border px-4 py-2">Status</th>
-                  <th className="border px-4 py-2">Redistribuição</th>
-                  <th className="border px-4 py-2">Dt P./D.O.</th>
-                  <th className="border px-4 py-2">Valor C.C.</th>
+                  <th className="border px-4 py-2">Cargo</th>
+                  <th className="border px-4 py-2">Servidor</th>
                   <th className="border px-4 py-2">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {organizationRows.map((row, index) => (
                   <Draggable key={row.cargo.id} draggableId={row.cargo.id} index={index}>
-                    {(provided, snapshot) => (
-                      <tr
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        className={snapshot.isDragging ? 'bg-blue-100' : ''}
-                      >
-                        {/* "pegador" do drag & drop na primeira célula */}
-                        <td className="border px-4 py-2" {...provided.dragHandleProps}>
-                          {row.cargo.numero}
-                        </td>
-                        <td className="border px-4 py-2">{row.cargo.cargoGenerico}</td>
-                        <td className="border px-4 py-2">{row.cargo.simbolo}</td>
+                    {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
+                      <tr ref={provided.innerRef} {...provided.draggableProps} className={snapshot.isDragging ? 'bg-blue-100' : ''}>
+                        <td className="border px-4 py-2" {...provided.dragHandleProps}>{row.cargo.cargoGenerico}</td>
+                        <td className="border px-4 py-2">{row.nomeServidor || 'Vago'}</td>
                         <td className="border px-4 py-2">
-                          {row.status === 'Provido'
-                            ? row.nomeServidor
-                            : <span className="text-gray-500">Vago</span>}
-                        </td>
-                        <td className="border px-4 py-2">{row.status}</td>
-                        <td className="border px-4 py-2">{row.redistribuicao}</td>
-                        <td className="border px-4 py-2">{row.dtPublicacao || '-'}</td>
-                        <td className="border px-4 py-2">
-                          {row.status === 'Provido'
-                            ? `R$ ${(row.valorCC ?? 0).toLocaleString('pt-BR', {
-                                minimumFractionDigits: 2
-                              })}`
-                            : '-'}
-                        </td>
-                        <td className="border px-4 py-2">
-                          {row.status === 'Provido' ? (
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() => setEditingEmployee(row)}
-                                title="Editar"
-                              >
-                                <Edit2 size={18} />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteEmployee(row)}
-                                title="Excluir"
-                                className="text-red-600 hover:text-red-800"
-                              >
-                                <Trash2 size={18} />
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => setEditingEmployee(row)}
-                              className="bg-green-600 text-white px-2 py-1 rounded"
-                            >
-                              Adicionar
-                            </button>
-                          )}
+                          <button onClick={() => setEditingEmployee(row)}><Edit2 size={18} /></button>
+                          <button onClick={() => handleDeleteEmployee(row)} className="text-red-600"><Trash2 size={18} /></button>
                         </td>
                       </tr>
                     )}
@@ -346,31 +171,7 @@ export function Employees() {
         </Droppable>
       </DragDropContext>
 
-      {/* Total de Valor C.C. */}
-      <div className="mb-4">
-        <p className="font-bold">
-          Total de Valor C.C.: R${' '}
-          {totalCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-        </p>
-      </div>
-
-      {/* Gráfico de Distribuição de Cargos */}
-      <div className="bg-white rounded-lg shadow p-4 mb-8">
-        <h2 className="text-xl font-bold mb-4">Distribuição de Cargos</h2>
-        <div style={{ position: 'relative', height: '300px' }}>
-          <Bar data={chartData} options={chartOptions} />
-        </div>
-      </div>
-
-      {/* Modal para edição/adicionar servidor */}
-      {editingEmployee && (
-        <EditModal
-          employee={editingEmployee}
-          isOpen={true}
-          onClose={() => setEditingEmployee(null)}
-          onSave={handleSaveEmployee}
-        />
-      )}
+      {editingEmployee && <EditModal employee={editingEmployee} isOpen={true} onClose={() => setEditingEmployee(null)} onSave={handleSaveEmployee} />}
     </div>
   );
 }

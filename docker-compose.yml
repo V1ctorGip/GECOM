@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # Banco de Dados PostgreSQL
+  postgres:
+    image: postgres:latest
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: gecom
+    ports:
+      - "5432:5432"  # Porta interna para backend
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d gecom"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PgAdmin para gerenciar o banco via navegador
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"  # Acesso via navegador em http://localhost:5050
+    depends_on:
+      - postgres
+
+  # Backend (Node.js + Express)
+  backend:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    container_name: gecom_backend
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=gecom
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+    volumes:
+      - .:/app
+      - /app/node_modules
+    working_dir: /app
+    command: ["node", "--loader", "ts-node/esm", "src/server.ts"]
+
+  # Frontend (React + Vite)
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    container_name: gecom_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://backend:5000/api
+    volumes:
+      - .:/app
+      - /app/node_modules
+    working_dir: /app
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+volumes:
+  postgres_data:
