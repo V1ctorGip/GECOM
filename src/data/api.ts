@@ -43,3 +43,46 @@ export const fetchOrganizationGrowth = async () => {
     return [];
   }
 };
+
+export const updateEmployee = async (employee) => {
+  try {
+    const response = await fetch(`${API_URL}/employees/${employee.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(employee),
+    });
+    if (!response.ok) throw new Error("Erro ao atualizar funcionário");
+    return await response.json();
+  } catch (error) {
+    console.error("❌ Erro ao atualizar funcionário:", error);
+    throw error;
+  }
+};
+
+export const deleteEmployee = async (employeeId) => {
+  try {
+    const response = await fetch(`${API_URL}/employees/${employeeId}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) throw new Error("Erro ao excluir funcionário");
+    return await response.json();
+  } catch (error) {
+    console.error("❌ Erro ao excluir funcionário:", error);
+    throw error;
+  }
+};
+
+export const createEmployee = async (employee) => {
+  try {
+    const response = await fetch(`${API_URL}/employees`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(employee),
+    });
+    if (!response.ok) throw new Error("Erro ao criar funcionário");
+    return await response.json();
+  } catch (error) {
+    console.error("❌ Erro ao criar funcionário:", error);
+    throw error;
+  }
+};
