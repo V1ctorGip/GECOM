@@ -1,4 +1,3 @@
-// src/types/index.ts
 export type Organization = {
   codigo: number;
   nome: string;
@@ -7,22 +6,22 @@ export type Organization = {
 };
 
 export type Position = {
-  id: string;                // Identificador único do cargo
-  numero: number;           // Nº (conforme a planilha)
-  cargoGenerico: string;    // Texto do cargo genérico
-  simbolo: string;          // Ex.: NE, DAS-1, FG etc.
+  id: string;                
+  numero: number;           // Se não houver, use 0 como default
+  cargoGenerico: string;    
+  simbolo: string;          // Se não houver, use uma string vazia
 };
 
-export type Employee = {
+export interface Employee {
   id: string;
-  nomeServidor: string;     // Nome do servidor (ou vazio se estiver Vago)
+  nomeServidor: string;
   cargo: Position;
-  status: 'Provido' | 'Vago';
-  redistribuicao: string;   // Ex.: 'Não', 'Sim' ou 'Vago'
-  dtPublicacao: string;     // Data de Publicação em D.O.
-  valorCC: number;          // Valor do Cargo em Comissão
-  secretaria: string;       // Sigla do órgão (ex.: 'CACIVIL')
-};
+  status: 'Vago' | 'Provido';
+  redistribuicao: string;
+  dtPublicacao: string;
+  valorCC: number;
+  secretaria: string;
+}
 
 export type OrganizationGrowth = {
   mes: string;
