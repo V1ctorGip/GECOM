@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://backend:5000/api"; // 🔥 Agora usa variável de ambiente
+const API_URL = import.meta.env.VITE_API_URL || "http://gecom_backend:5000/api";
 
 export const fetchOrganizations = async () => {
   try {

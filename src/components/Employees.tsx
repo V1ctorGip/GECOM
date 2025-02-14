@@ -9,8 +9,8 @@ import {
   DraggableStateSnapshot,
 } from 'react-beautiful-dnd';
 import { Edit2, Trash2 } from 'lucide-react';
-import { fetchEmployees, fetchPositions, fetchOrganizations } from '../data/api';
-import { Employee, Position, Organization } from '../types';
+import { fetchEmployees, fetchPositions, fetchOrganizations } from '../data/api.js';
+import { Employee, Position, Organization }  from "../types/index.js";
 
 // Instalar @types/react-beautiful-dnd caso ainda não tenha
 // npm i --save-dev @types/react-beautiful-dnd

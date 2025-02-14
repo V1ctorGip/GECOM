@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: gecom
     ports:
-      - "5432:5432"  # Porta interna para backend
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./src/migrations:/docker-entrypoint-initdb.d
@@ -20,6 +20,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - gecom_network
 
   # PgAdmin para gerenciar o banco via navegador
   pgadmin:
@@ -32,7 +34,10 @@ services:
     ports:
       - "5050:80"  # Acesso via navegador em http://localhost:5050
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    networks:
+      - gecom_network
 
   # Backend (Node.js + Express)
   backend:
@@ -42,8 +47,8 @@ services:
     container_name: gecom_backend
     restart: always
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     ports:
       - "5000:5000"
     environment:
@@ -57,6 +62,8 @@ services:
       - /app/node_modules
     working_dir: /app
     command: ["node", "--loader", "ts-node/esm", "src/server.ts"]
+    networks:
+      - gecom_network
 
   # Frontend (React + Vite)
   frontend:
@@ -70,12 +77,34 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - VITE_API_URL=http://backend:5000/api
+      - VITE_API_URL=http://gecom_backend:5000/api
     volumes:
       - .:/app
       - /app/node_modules
     working_dir: /app
     command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+    networks:
+      - gecom_network
+
+  # Serviço para executar a migração dos dados (insertEmployees.ts)
+  migrate:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    container_name: gecom_migrate
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: ["node", "--loader", "ts-node/esm", "src/migrations/insertEmployees.ts"]
+    networks:
+      - gecom_network
+
+networks:
+  gecom_network:
 
 volumes:
   postgres_data:

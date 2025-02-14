@@ -11,7 +11,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "node --loader ts-node/esm src/server.ts"
+    "start": "node --loader ts-node/esm src/server.ts",
+    "migrate": "node --loader ts-node/esm src/migrations/insertEmployees.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.3.1",

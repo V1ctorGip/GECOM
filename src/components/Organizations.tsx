@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { fetchOrganizations } from '../data/api';
-import { Organization } from '../types';  
+import { fetchOrganizations } from '../data/api.js';
+import { Organization } from "../types/index.js";
 
 export function Organizations() {
   const [organizations, setOrganizations] = useState<Organization[]>([]);  

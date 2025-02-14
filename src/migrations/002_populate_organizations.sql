@@ -1,4 +1,4 @@
-INSERT INTO organizations (codigo, nome, sigla, classificacao) VALUES
+INSERT INTO organizations (codigo, secretaria, sigla, classificacao) VALUES
 (1, 'Casa Civil do Município de Palmas', 'CACIVIL', 'DIRETA'),
 (5, 'Gabinete do Prefeito', 'GAP', 'DIRETA'),
 (6, 'Gabinete do Vice-Prefeito', 'GAVIP', 'DIRETA'),

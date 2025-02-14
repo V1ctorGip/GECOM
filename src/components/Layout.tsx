@@ -1,6 +1,6 @@
 import React from 'react';
 import { Building2, Users, Briefcase, LayoutDashboard, FileText, LogOut } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext.js';
 
 type LayoutProps = {
   children: React.ReactNode;
