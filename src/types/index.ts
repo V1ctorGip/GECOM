@@ -1,6 +1,6 @@
 export type Organization = {
   codigo: number;
-  nome: string;
+  secretaria: string;
   sigla: string;
   classificacao: 'DIRETA' | 'INDIRETA';
 };

@@ -1,3 +1,4 @@
+// server.ts
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -14,12 +15,13 @@ app.use(express.json());
 
 const pool = new Pool({
   user: process.env.POSTGRES_USER || 'admin',
-  host: process.env.POSTGRES_HOST || 'postgres_db', // Nome do serviço no Docker
+  host: process.env.POSTGRES_HOST || 'postgres_db', // nome do serviço no Docker
   database: process.env.POSTGRES_DB || 'gecom',
   password: process.env.POSTGRES_PASSWORD || 'admin',
   port: parseInt(process.env.POSTGRES_PORT || '5432', 10),
 });
 
+// Endpoint para organizações
 app.get('/api/organizations', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM organizations ORDER BY codigo');
@@ -30,6 +32,7 @@ app.get('/api/organizations', async (req, res) => {
   }
 });
 
+// Endpoint para funcionários
 app.get('/api/employees', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM employees ORDER BY id');
@@ -40,6 +43,7 @@ app.get('/api/employees', async (req, res) => {
   }
 });
 
+// Endpoint para cargos
 app.get('/api/positions', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM positions ORDER BY numero');
@@ -50,9 +54,9 @@ app.get('/api/positions', async (req, res) => {
   }
 });
 
+// Endpoint para crescimento organizacional (retorna array vazio se não houver dados)
 app.get('/api/organization-growth', async (req, res) => {
   try {
-    // Se não houver dados, retorne um array vazio
     res.json([]);
   } catch (error: any) {
     console.error('Erro ao buscar crescimento organizacional:', error);

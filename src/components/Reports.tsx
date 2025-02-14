@@ -1,6 +1,7 @@
+// src/components/Reports.tsx
 import React from 'react';
 import { FileText } from 'lucide-react';
-import { Report } from '../types';
+import { Report } from '../types/index.js'; 
 
 const reports: Report[] = [
   { id: '1', title: 'Lista de Organizações', description: 'Relatório completo de todas as organizações', type: 'organizations' },
@@ -13,7 +14,6 @@ export function Reports() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Relatórios</h1>
-      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {reports.map((report) => (
           <div key={report.id} className="bg-white rounded-lg shadow p-6">
