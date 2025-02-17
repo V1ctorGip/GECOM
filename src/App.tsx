@@ -7,6 +7,10 @@ import { Reports } from './components/Reports.js';
 import { Login } from './components/Login.js';
 import { Employees } from './components/Employees.js';
 import { AuthProvider, useAuth } from './context/AuthContext.js';
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
+
 
 function AppContent() {
   const { isAuthenticated } = useAuth();

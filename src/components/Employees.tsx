@@ -1,3 +1,5 @@
+// src/components/Employees.tsx
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Edit2, Trash2 } from 'lucide-react';
 import { Bar } from 'react-chartjs-2';
@@ -10,7 +12,13 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
+// Remova qualquer import de DataTableRowReorderParams, pois não existe.
+// import { DataTableRowReorderParams } from 'primereact/datatable';
+
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+
 import {
   fetchOrganizations,
   fetchEmployees,
@@ -21,17 +29,26 @@ import {
   updateEmployeePositions,
   createPosition,
 } from '../data/api.js';
+
 import { Employee, Organization, Position } from '../types/index.js';
+
+// Definimos nós mesmos a interface do evento de reorder:
+interface RowReorderEvent {
+  originalEvent: React.DragEvent<HTMLElement>;
+  value: Employee[];   // Novo array reordenado
+  dragIndex: number;
+  dropIndex: number;
+}
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// Helper: converte data ISO para DD/MM/YYYY
+/** Helper para converter data ISO (YYYY-MM-DD) em DD/MM/YYYY */
 const formatDateToBR = (isoDate: string): string => {
   const [year, month, day] = isoDate.split('-');
   return `${day}/${month}/${year}`;
 };
 
-// Transforma os dados do backend para o formato esperado
+/** Converte objetos do backend para o tipo Employee do frontend */
 const transformEmployee = (emp: any): Employee => ({
   id: String(emp.id),
   nomeServidor: emp.servidor || '',
@@ -52,7 +69,7 @@ const transformEmployee = (emp: any): Employee => ({
   ordem: emp.ordem || 0,
 });
 
-// Modos do modal
+/** Modo do modal */
 type ModalMode = 'edit' | 'addVacant' | 'addNew';
 const getMode = (employee: Employee): ModalMode => {
   if (employee.id === 'new') return 'addNew';
@@ -60,7 +77,7 @@ const getMode = (employee: Employee): ModalMode => {
   return 'edit';
 };
 
-// Props para o modal
+/** Props do modal de edição */
 type EditModalProps = {
   employee: Employee;
   mode: ModalMode;
@@ -71,7 +88,15 @@ type EditModalProps = {
   onSave: (updatedEmployee: Employee) => void;
 };
 
-function EditModal({ employee, mode, organizations, positions, isOpen, onClose, onSave }: EditModalProps) {
+function EditModal({
+  employee,
+  mode,
+  organizations,
+  positions,
+  isOpen,
+  onClose,
+  onSave,
+}: EditModalProps) {
   const [editedEmployee, setEditedEmployee] = useState<Employee>({ ...employee });
 
   useEffect(() => {
@@ -80,44 +105,50 @@ function EditModal({ employee, mode, organizations, positions, isOpen, onClose, 
 
   if (!isOpen) return null;
 
-  // Para o modo addNew, criamos listas deduplicadas para cargos e símbolos
   const dedupedCargos = useMemo(() => {
-    const set = new Set(positions.map(pos => pos.cargo_efetivo));
+    const set = new Set(positions.map((pos) => pos.cargo_efetivo));
     return Array.from(set);
   }, [positions]);
 
   const dedupedSimbolos = useMemo(() => {
-    const set = new Set(positions.map(pos => pos.simbolo));
+    const set = new Set(positions.map((pos) => pos.simbolo));
     return Array.from(set);
   }, [positions]);
 
   const handleSave = async () => {
-    if (mode === 'addNew') {
-      // Converte nome para MAIÚSCULAS
-      const updated = { ...editedEmployee, nomeServidor: editedEmployee.nomeServidor.toUpperCase() };
-      // Forçamos o status para "Provido"
-      updated.status = 'Provido';
-      // Verifica se o cargo/símbolo digitado já existe
-      const exists = positions.find(
-        (pos) =>
-          pos.cargo_efetivo.trim().toLowerCase() === updated.cargo.cargo_efetivo.trim().toLowerCase() &&
-          pos.simbolo.trim().toLowerCase() === updated.cargo.simbolo.trim().toLowerCase()
-      );
-      if (!exists) {
-        // Se não existir, calcula um novo número para a posição
-        const maxNumero = positions.length > 0 ? Math.max(...positions.map(p => p.numero)) : 0;
-        const novoNumero = maxNumero + 1;
-        try {
-          const newPos = await createPosition({
-            numero: novoNumero,
-            cargo_efetivo: updated.cargo.cargo_efetivo,
-            simbolo: updated.cargo.simbolo,
-          });
-          updated.cargo.id = String(newPos.id);
-        } catch (error) {
-          console.error('Erro ao criar nova posição:', error);
-          alert('Erro ao criar nova posição');
-          return;
+    // Se for addNew ou addVacant, forçamos status=Provido e nome em MAIÚSCULAS
+    if (mode === 'addNew' || mode === 'addVacant') {
+      const updated: Employee = {
+        ...editedEmployee,
+        nomeServidor: editedEmployee.nomeServidor.toUpperCase(),
+        status: 'Provido',
+      };
+      if (mode === 'addNew') {
+        // Verifica se cargo/símbolo existe
+        const exists = positions.find(
+          (pos) =>
+            pos.cargo_efetivo.trim().toLowerCase() ===
+              updated.cargo.cargo_efetivo.trim().toLowerCase() &&
+            pos.simbolo.trim().toLowerCase() ===
+              updated.cargo.simbolo.trim().toLowerCase()
+        );
+        if (!exists) {
+          // Se não existir, cria no banco
+          const maxNumero =
+            positions.length > 0 ? Math.max(...positions.map((p) => p.numero)) : 0;
+          const novoNumero = maxNumero + 1;
+          try {
+            const newPos = await createPosition({
+              numero: novoNumero,
+              cargo_efetivo: updated.cargo.cargo_efetivo,
+              simbolo: updated.cargo.simbolo,
+            });
+            updated.cargo.id = String(newPos.id);
+          } catch (error) {
+            console.error('Erro ao criar nova posição:', error);
+            alert('Erro ao criar nova posição');
+            return;
+          }
         }
       }
       setEditedEmployee(updated);
@@ -125,9 +156,7 @@ function EditModal({ employee, mode, organizations, positions, isOpen, onClose, 
       onSave(updated);
       onClose();
     } else {
-      if (mode === 'addVacant') {
-        setEditedEmployee(prev => ({ ...prev, status: 'Provido' }));
-      }
+      // modo edit
       alert('Servidor salvo com sucesso!');
       onSave(editedEmployee);
       onClose();
@@ -144,22 +173,27 @@ function EditModal({ employee, mode, organizations, positions, isOpen, onClose, 
             ? 'Adicionar Servidor'
             : 'Editar Servidor'}
         </h2>
+
         <div className="space-y-4">
           {/* Nome Servidor */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Nome Servidor</label>
             <input
               type="text"
-              className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"
               value={editedEmployee.nomeServidor}
               onChange={(e) =>
                 setEditedEmployee({
                   ...editedEmployee,
-                  nomeServidor: mode === 'addNew' ? e.target.value.toUpperCase() : e.target.value,
+                  nomeServidor:
+                    mode === 'addNew' || mode === 'addVacant'
+                      ? e.target.value.toUpperCase()
+                      : e.target.value,
                 })
               }
             />
           </div>
+
           {/* Cargo Genérico */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Cargo Genérico</label>
@@ -168,13 +202,16 @@ function EditModal({ employee, mode, organizations, positions, isOpen, onClose, 
                 <input
                   type="text"
                   list="cargo-options"
-                  className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"
                   placeholder="Digite ou selecione..."
                   value={editedEmployee.cargo.cargo_efetivo}
                   onChange={(e) =>
                     setEditedEmployee({
                       ...editedEmployee,
-                      cargo: { ...editedEmployee.cargo, cargo_efetivo: e.target.value },
+                      cargo: {
+                        ...editedEmployee.cargo,
+                        cargo_efetivo: e.target.value,
+                      },
                     })
                   }
                 />
@@ -186,15 +223,18 @@ function EditModal({ employee, mode, organizations, positions, isOpen, onClose, 
               </>
             ) : (
               <select
-                className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"
                 value={editedEmployee.cargo.cargo_efetivo}
                 onChange={(e) =>
                   setEditedEmployee({
                     ...editedEmployee,
-                    cargo: { ...editedEmployee.cargo, cargo_efetivo: e.target.value },
+                    cargo: {
+                      ...editedEmployee.cargo,
+                      cargo_efetivo: e.target.value,
+                    },
                   })
                 }
-                disabled={mode === 'edit'}
+                disabled={mode === 'edit' ? false : true}
               >
                 {dedupedCargos.map((cargo, idx) => (
                   <option key={idx} value={cargo}>
@@ -204,6 +244,7 @@ function EditModal({ employee, mode, organizations, positions, isOpen, onClose, 
               </select>
             )}
           </div>
+
           {/* Símbolo */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Símbolo</label>
@@ -212,7 +253,7 @@ function EditModal({ employee, mode, organizations, positions, isOpen, onClose, 
                 <input
                   type="text"
                   list="simbolo-options"
-                  className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"
                   placeholder="Digite ou selecione..."
                   value={editedEmployee.cargo.simbolo}
                   onChange={(e) =>
@@ -230,7 +271,7 @@ function EditModal({ employee, mode, organizations, positions, isOpen, onClose, 
               </>
             ) : (
               <select
-                className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"
                 value={editedEmployee.cargo.simbolo}
                 onChange={(e) =>
                   setEditedEmployee({
@@ -238,7 +279,7 @@ function EditModal({ employee, mode, organizations, positions, isOpen, onClose, 
                     cargo: { ...editedEmployee.cargo, simbolo: e.target.value },
                   })
                 }
-                disabled={mode === 'edit'}
+                disabled={mode === 'edit' ? false : true}
               >
                 {dedupedSimbolos.map((simbolo, idx) => (
                   <option key={idx} value={simbolo}>
@@ -248,47 +289,58 @@ function EditModal({ employee, mode, organizations, positions, isOpen, onClose, 
               </select>
             )}
           </div>
+
           {/* Redistribuição */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Redistribuição</label>
             <select
-              className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"
               value={editedEmployee.redistribuicao}
               onChange={(e) =>
-                setEditedEmployee({ ...editedEmployee, redistribuicao: e.target.value })
+                setEditedEmployee({
+                  ...editedEmployee,
+                  redistribuicao: e.target.value,
+                })
               }
-              disabled={mode === 'edit'}
             >
               <option value="">Nenhuma</option>
-              {organizations.map(org => (
+              {organizations.map((org) => (
                 <option key={org.sigla} value={org.sigla}>
                   {org.sigla}
                 </option>
               ))}
             </select>
           </div>
-          {/* Data de Publicação */}
+
+          {/* Data Publicação */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Data de Publicação</label>
             <input
               type="date"
-              className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"
               value={editedEmployee.dtPublicacao}
               onChange={(e) =>
-                setEditedEmployee({ ...editedEmployee, dtPublicacao: e.target.value })
+                setEditedEmployee({
+                  ...editedEmployee,
+                  dtPublicacao: e.target.value,
+                })
               }
             />
           </div>
+
           {/* Valor C.C. */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Valor C.C.</label>
             {mode === 'addNew' ? (
               <input
                 type="number"
-                className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"
                 value={editedEmployee.valorCC}
                 onChange={(e) =>
-                  setEditedEmployee({ ...editedEmployee, valorCC: Number(e.target.value) })
+                  setEditedEmployee({
+                    ...editedEmployee,
+                    valorCC: Number(e.target.value),
+                  })
                 }
               />
             ) : (
@@ -300,27 +352,58 @@ function EditModal({ employee, mode, organizations, positions, isOpen, onClose, 
               />
             )}
           </div>
-          {/* Status – somente no modo addNew, forçando "Provido" */}
-          {mode === 'addNew' && (
+
+          {/* Status */}
+          {mode === 'edit' ? (
             <div>
               <label className="block text-sm font-medium text-gray-700">Status</label>
               <select
-                className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"
                 value={editedEmployee.status}
                 onChange={(e) =>
-                  setEditedEmployee({ ...editedEmployee, status: e.target.value as 'Vago' | 'Provido' })
+                  setEditedEmployee({
+                    ...editedEmployee,
+                    status: e.target.value as 'Provido' | 'Vago',
+                  })
                 }
               >
                 <option value="Provido">Provido</option>
+                <option value="Vago">Vago</option>
               </select>
             </div>
+          ) : (
+            (mode === 'addNew' || mode === 'addVacant') && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Status</label>
+                <select
+                  className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"
+                  value={editedEmployee.status}
+                  onChange={(e) =>
+                    setEditedEmployee({
+                      ...editedEmployee,
+                      status: e.target.value as 'Provido',
+                    })
+                  }
+                  disabled={mode === 'addVacant'}
+                >
+                  <option value="Provido">Provido</option>
+                </select>
+              </div>
+            )
           )}
         </div>
+
         <div className="mt-6 flex justify-end space-x-3">
-          <button className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50" onClick={onClose}>
+          <button
+            className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50"
+            onClick={onClose}
+          >
             Cancelar
           </button>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" onClick={handleSave}>
+          <button
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            onClick={handleSave}
+          >
             Salvar
           </button>
         </div>
@@ -336,14 +419,18 @@ export function Employees() {
   const [selectedOrgan, setSelectedOrgan] = useState<string>('');
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
+  /** Carrega dados iniciais do backend */
   const loadData = async () => {
     try {
       const orgs = await fetchOrganizations();
       const emps = await fetchEmployees();
       const poss = await fetchPositions();
+
       setOrganizations(orgs);
       setPositions(poss);
+
       const transformed = emps.map(transformEmployee);
+      // Ordena localmente
       transformed.sort((a, b) => a.ordem - b.ordem);
       setEmployeesData(transformed);
     } catch (error) {
@@ -355,13 +442,18 @@ export function Employees() {
     loadData();
   }, []);
 
+  /** Lista de organizações que realmente têm empregados */
   const availableOrganizations = useMemo(() => {
-    return organizations.filter(org => employeesData.some(emp => emp.secretaria === org.sigla));
+    return organizations.filter((org) =>
+      employeesData.some((emp) => emp.secretaria === org.sigla)
+    );
   }, [organizations, employeesData]);
 
+  /** Ajusta o selectedOrgan caso o anterior não exista mais */
   useEffect(() => {
     if (availableOrganizations.length > 0) {
-      if (!availableOrganizations.find(org => org.sigla === selectedOrgan)) {
+      const stillExists = availableOrganizations.find((org) => org.sigla === selectedOrgan);
+      if (!stillExists) {
         setSelectedOrgan(availableOrganizations[0].sigla);
       }
     } else {
@@ -369,34 +461,40 @@ export function Employees() {
     }
   }, [availableOrganizations, selectedOrgan]);
 
+  /** Filtra os funcionários do órgão selecionado e ordena por ordem */
   const organizationRows = useMemo(() => {
-    const filtered = employeesData.filter(emp => emp.secretaria === selectedOrgan);
+    const filtered = employeesData.filter((emp) => emp.secretaria === selectedOrgan);
     return filtered.sort((a, b) => a.ordem - b.ordem);
   }, [employeesData, selectedOrgan]);
 
+  /** Soma total C.C. do órgão */
   const totalCC = useMemo(() => {
     return organizationRows
-      .filter(emp => emp.status === 'Provido')
+      .filter((emp) => emp.status === 'Provido')
       .reduce((sum, emp) => sum + (emp.valorCC || 0), 0);
   }, [organizationRows]);
 
+  /** Dados do gráfico */
   const chartData = useMemo(() => {
-    const providoCount = organizationRows.filter(emp => emp.status === 'Provido').length;
-    const vagoCount = organizationRows.filter(emp => emp.status === 'Vago').length;
+    const providoCount = organizationRows.filter((emp) => emp.status === 'Provido').length;
+    const vagoCount = organizationRows.filter((emp) => emp.status === 'Vago').length;
     return {
       labels: ['Provido', 'Vago'],
-      datasets: [{
-        label: 'Cargos',
-        data: [providoCount, vagoCount],
-        backgroundColor: ['rgba(75,192,192,0.5)', 'rgba(255,99,132,0.5)'],
-        borderColor: ['rgba(75,192,192,1)', 'rgba(255,99,132,1)'],
-        borderWidth: 1,
-      }],
+      datasets: [
+        {
+          label: 'Cargos',
+          data: [providoCount, vagoCount],
+          backgroundColor: ['rgba(75,192,192,0.5)', 'rgba(255,99,132,0.5)'],
+          borderColor: ['rgba(75,192,192,1)', 'rgba(255,99,132,1)'],
+          borderWidth: 1,
+        },
+      ],
     };
   }, [organizationRows]);
 
   const chartOptions = { responsive: true, maintainAspectRatio: false };
 
+  /** Salva (create ou update) */
   const handleSaveEmployee = async (updatedEmployee: Employee) => {
     if (updatedEmployee.id === 'new') {
       try {
@@ -415,6 +513,7 @@ export function Employees() {
     }
   };
 
+  /** Exclui um funcionário */
   const handleDeleteEmployee = async (employee: Employee) => {
     if (window.confirm('Tem certeza que deseja excluir este servidor?')) {
       try {
@@ -426,11 +525,18 @@ export function Employees() {
     }
   };
 
+  /** Adiciona um novo servidor (modo addNew) */
   const handleAddNew = () => {
     const newEmployee: Employee = {
       id: 'new',
       nomeServidor: '',
-      cargo: { id: '', cargo_efetivo: '', numero: 0, simbolo: '', secretaria: selectedOrgan },
+      cargo: {
+        id: '',
+        cargo_efetivo: '',
+        numero: 0,
+        simbolo: '',
+        secretaria: selectedOrgan,
+      },
       status: 'Vago',
       redistribuicao: '',
       dtPublicacao: '',
@@ -441,137 +547,209 @@ export function Employees() {
     setEditingEmployee(newEmployee);
   };
 
-  const handleDragEnd = async (result: any) => {
-    if (!result.destination) return;
-    const sourceIndex = result.source.index;
-    const destinationIndex = result.destination.index;
-    const newOrder = Array.from(organizationRows);
-    const [movedItem] = newOrder.splice(sourceIndex, 1);
-    newOrder.splice(destinationIndex, 0, movedItem);
-    const updatedOrganizationRows = newOrder.map((emp, index) => ({
+  /**
+   * Quando o usuário reordenar as linhas no DataTable,
+   * atualizamos o array local (organizationRows) e
+   * também chamamos a API para persistir a nova ordem no BD.
+   */
+  const handleRowReorder = async (e: RowReorderEvent) => {
+    const reordered = e.value; // array reordenado
+    // Ajustar 'ordem' = índice + 1
+    const updatedOrgRows = reordered.map((emp, index) => ({
       ...emp,
       ordem: index + 1,
     }));
-    const newEmployeesData = employeesData.map(emp => {
+
+    // Atualiza no estado principal
+    const newEmployeesData = employeesData.map((emp) => {
       if (emp.secretaria === selectedOrgan) {
-        const updatedEmp = updatedOrganizationRows.find(e => e.id === emp.id);
-        return updatedEmp ? updatedEmp : emp;
+        const updatedEmp = updatedOrgRows.find((it) => it.id === emp.id);
+        return updatedEmp || emp;
       }
       return emp;
     });
     setEmployeesData(newEmployeesData);
+
+    // Atualiza no backend
     try {
-      await updateEmployeePositions(updatedOrganizationRows);
+      await updateEmployeePositions(updatedOrgRows);
     } catch (error) {
-      console.error('Erro ao atualizar posições', error);
+      console.error('Erro ao atualizar posições no backend:', error);
     }
+  };
+
+  /** Coluna # (índice da linha) */
+  const rowNumberTemplate = (_emp: Employee, options: { rowIndex: number }) => {
+    return options.rowIndex + 1;
+  };
+
+  /** Coluna: Servidor (Provido ou Vago) */
+  const servidorTemplate = (emp: Employee) => {
+    if (emp.status === 'Provido') {
+      return emp.nomeServidor;
+    }
+    return <span className="text-gray-500">Vago</span>;
+  };
+
+  /** Coluna: Valor C.C. */
+  const valorTemplate = (emp: Employee) => {
+    if (emp.status === 'Provido') {
+      return `R$ ${emp.valorCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    }
+    return '-';
+  };
+
+  /** Coluna: Data Publicação */
+  const dataPublicacaoTemplate = (emp: Employee) => {
+    return emp.dtPublicacao ? formatDateToBR(emp.dtPublicacao) : '-';
+  };
+
+  /** Coluna: Ações (botões) */
+  const acoesTemplate = (emp: Employee) => {
+    if (emp.status === 'Provido') {
+      return (
+        <div className="flex space-x-2">
+          <button onClick={() => setEditingEmployee(emp)} title="Editar">
+            <Edit2 size={18} />
+          </button>
+          <button
+            onClick={() => handleDeleteEmployee(emp)}
+            title="Excluir"
+            className="text-red-600 hover:text-red-800"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
+      );
+    }
+    return (
+      <button
+        onClick={() => setEditingEmployee(emp)}
+        className="bg-green-600 text-white px-2 py-1 rounded"
+      >
+        Adicionar
+      </button>
+    );
   };
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Gerenciamento de Servidores</h1>
+
       <div className="mb-4">
         <label className="mr-2 font-medium">Selecione o Órgão:</label>
-        <select className="p-2 border rounded-lg" value={selectedOrgan} onChange={(e) => setSelectedOrgan(e.target.value)}>
-          {availableOrganizations.map(org => (
+        <select
+          className="p-2 border rounded-lg"
+          value={selectedOrgan}
+          onChange={(e) => setSelectedOrgan(e.target.value)}
+        >
+          {availableOrganizations.map((org) => (
             <option key={org.codigo} value={org.sigla}>
               {org.secretaria} ({org.sigla})
             </option>
           ))}
         </select>
       </div>
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <table className="min-w-full border-collapse mb-4">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border px-4 py-2">Nº</th>
-              <th className="border px-4 py-2">Cargo Genérico</th>
-              <th className="border px-4 py-2">Símbolo</th>
-              <th className="border px-4 py-2">Nome do Servidor</th>
-              <th className="border px-4 py-2">Status</th>
-              <th className="border px-4 py-2">Redistribuição</th>
-              <th className="border px-4 py-2">Dt P./D.O.</th>
-              <th className="border px-4 py-2">Valor C.C.</th>
-              <th className="border px-4 py-2">Ações</th>
-            </tr>
-          </thead>
-          <Droppable droppableId="employees">
-            {(provided) => (
-              <tbody ref={provided.innerRef} {...provided.droppableProps}>
-                {organizationRows.length > 0 ? (
-                  organizationRows.map((emp, index) => (
-                    <Draggable key={emp.id} draggableId={emp.id} index={index}>
-                      {(provided) => (
-                        <tr ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                          <td className="border px-4 py-2">{index + 1}</td>
-                          <td className="border px-4 py-2">{emp.cargo.cargo_efetivo}</td>
-                          <td className="border px-4 py-2">{emp.cargo.simbolo}</td>
-                          <td className="border px-4 py-2">
-                            {emp.status === 'Provido' ? emp.nomeServidor : <span className="text-gray-500">Vago</span>}
-                          </td>
-                          <td className="border px-4 py-2">{emp.status}</td>
-                          <td className="border px-4 py-2">{emp.redistribuicao}</td>
-                          <td className="border px-4 py-2">
-                            {emp.dtPublicacao ? formatDateToBR(emp.dtPublicacao) : '-'}
-                          </td>
-                          <td className="border px-4 py-2">
-                            {emp.status === 'Provido'
-                              ? `R$ ${emp.valorCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-                              : '-'}
-                          </td>
-                          <td className="border px-4 py-2">
-                            {emp.status === 'Provido' ? (
-                              <div className="flex space-x-2">
-                                <button onClick={() => setEditingEmployee(emp)} title="Editar">
-                                  <Edit2 size={18} />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteEmployee(emp)}
-                                  title="Excluir"
-                                  className="text-red-600 hover:text-red-800"
-                                >
-                                  <Trash2 size={18} />
-                                </button>
-                              </div>
-                            ) : (
-                              <button onClick={() => setEditingEmployee(emp)} className="bg-green-600 text-white px-2 py-1 rounded">
-                                Adicionar
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      )}
-                    </Draggable>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={9} className="text-center py-4">Nenhum funcionário encontrado.</td>
-                  </tr>
-                )}
-                <tr>
-                  <td colSpan={9} className="text-center py-4">
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={handleAddNew}>
-                      Adicionar Novo
-                    </button>
-                  </td>
-                </tr>
-                {provided.placeholder}
-              </tbody>
-            )}
-          </Droppable>
-        </table>
-      </DragDropContext>
+
+      {/* DataTable com reorderableRows */}
+      <DataTable
+        value={organizationRows}
+        reorderableRows
+        onRowReorder={handleRowReorder}
+        tableStyle={{ minWidth: '50rem' }}
+        responsiveLayout="scroll"
+      >
+        {/* Coluna para arrastar a linha */}
+        <Column rowReorder style={{ width: '3rem' }} />
+
+        {/* # */}
+        <Column
+          header="#"
+          body={rowNumberTemplate}
+          style={{ width: '3rem', textAlign: 'center' }}
+        />
+
+        {/* Cargo Genérico */}
+        <Column
+          field="cargo.cargo_efetivo"
+          header="Cargo Genérico"
+          style={{ minWidth: '8rem' }}
+        />
+
+        {/* Símbolo */}
+        <Column
+          field="cargo.simbolo"
+          header="Símbolo"
+          style={{ minWidth: '6rem', textAlign: 'center' }}
+        />
+
+        {/* Servidor */}
+        <Column
+          header="Servidor"
+          body={servidorTemplate}
+          style={{ minWidth: '10rem' }}
+        />
+
+        {/* Status */}
+        <Column
+          field="status"
+          header="Status"
+          style={{ minWidth: '6rem', textAlign: 'center' }}
+        />
+
+        {/* Redistribuição */}
+        <Column
+          field="redistribuicao"
+          header="Redistribuição"
+          style={{ minWidth: '7rem', textAlign: 'center' }}
+        />
+
+        {/* Publicação */}
+        <Column
+          header="Publicação"
+          body={dataPublicacaoTemplate}
+          style={{ minWidth: '6rem', textAlign: 'center' }}
+        />
+
+        {/* Valor C.C. */}
+        <Column
+          header="Valor C.C."
+          body={valorTemplate}
+          style={{ minWidth: '7rem', textAlign: 'center' }}
+        />
+
+        {/* Ações */}
+        <Column
+          header="Ações"
+          body={acoesTemplate}
+          style={{ minWidth: '6rem', textAlign: 'center' }}
+        />
+      </DataTable>
+
+      {/* Botão Adicionar Novo */}
+      <div className="text-center py-4">
+        <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={handleAddNew}>
+          Adicionar Novo
+        </button>
+      </div>
+
+      {/* Total de Valor */}
       <div className="mb-4">
         <p className="font-bold">
-          Total de Valor C.C.: R$ {totalCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          Total de Valor C.C.: R${' '}
+          {totalCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
         </p>
       </div>
+
+      {/* Gráfico de distribuição de cargos */}
       <div className="bg-white rounded-lg shadow p-4 mb-8">
         <h2 className="text-xl font-bold mb-4">Distribuição de Cargos</h2>
         <div style={{ position: 'relative', height: '300px' }}>
           <Bar data={chartData} options={chartOptions} />
         </div>
       </div>
+
+      {/* Modal de Edição */}
       {editingEmployee && (
         <EditModal
           employee={editingEmployee}
