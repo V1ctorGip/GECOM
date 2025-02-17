@@ -21,7 +21,9 @@ export interface Employee {
   dtPublicacao: string;
   valorCC: number;
   secretaria: string;
+  ordem: number; // Nova propriedade para controlar a ordem/posição no datatable
 }
+
 
 export type OrganizationGrowth = {
   mes: string;

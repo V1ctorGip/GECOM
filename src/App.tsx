@@ -1,12 +1,12 @@
 // src/App.tsx
 import React from 'react';
-import { Layout } from './components/Layout';
-import { Dashboard } from './components/Dashboard';
-import { Organizations } from './components/Organizations';
-import { Reports } from './components/Reports';
-import { Login } from './components/Login';
-import { Employees } from './components/Employees';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { Layout } from './components/Layout.js';
+import { Dashboard } from './components/Dashboard.js';
+import { Organizations } from './components/Organizations.js';
+import { Reports } from './components/Reports.js';
+import { Login } from './components/Login.js';
+import { Employees } from './components/Employees.js';
+import { AuthProvider, useAuth } from './context/AuthContext.js';
 
 function AppContent() {
   const { isAuthenticated } = useAuth();

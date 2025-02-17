@@ -1,19 +1,35 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Edit2, Trash2 } from 'lucide-react';
 import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import {
   fetchOrganizations,
   fetchEmployees,
   updateEmployee,
   deleteEmployee,
   createEmployee,
+  updateEmployeePositions,
 } from '../data/api.js';
 import { Employee, Organization } from '../types/index.js';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// Transforma os dados retornados pela API para o formato usado internamente.
+// Função auxiliar para converter ISO (YYYY-MM-DD) para DD/MM/YYYY
+const formatDateToBR = (isoDate: string): string => {
+  const [year, month, day] = isoDate.split('-');
+  return `${day}/${month}/${year}`;
+};
+
+// Ao carregar os dados do backend, convertemos a data para formato ISO
 const transformEmployee = (emp: any): Employee => ({
   id: String(emp.id),
   nomeServidor: emp.servidor || '',
@@ -25,9 +41,13 @@ const transformEmployee = (emp: any): Employee => ({
   },
   status: emp.status === 'Provido' ? 'Provido' : 'Vago',
   redistribuicao: emp.redistribuicao || 'Não',
-  dtPublicacao: emp.data_nomeacao ? new Date(emp.data_nomeacao).toLocaleDateString('pt-BR') : '',
+  // Converte a data do banco (se houver) para ISO (YYYY-MM-DD)
+  dtPublicacao: emp.data_nomeacao
+    ? new Date(emp.data_nomeacao).toISOString().split('T')[0]
+    : '',
   valorCC: Number(emp.salario) || 0,
   secretaria: emp.secretaria,
+  ordem: emp.ordem || 0,
 });
 
 type EditModalProps = {
@@ -39,24 +59,26 @@ type EditModalProps = {
 
 function EditModal({ employee, isOpen, onClose, onSave }: EditModalProps) {
   const [editedEmployee, setEditedEmployee] = useState<Employee>({ ...employee });
+
   useEffect(() => {
     setEditedEmployee({ ...employee });
   }, [employee]);
+
   if (!isOpen) return null;
-  const formattedDate = editedEmployee.dtPublicacao
-    ? editedEmployee.dtPublicacao.split('/').reverse().join('-')
-    : '';
+
   const handleSave = () => {
     onSave(editedEmployee);
     onClose();
   };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg w-full max-w-md">
         <h2 className="text-xl font-bold mb-4">
-          {employee.id === "new" ? 'Adicionar Servidor' : 'Editar Servidor'}
+          {employee.id === 'new' ? 'Adicionar Servidor' : 'Editar Servidor'}
         </h2>
         <div className="space-y-4">
+          {/* Campos do formulário */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Nome Servidor</label>
             <input
@@ -101,15 +123,14 @@ function EditModal({ employee, isOpen, onClose, onSave }: EditModalProps) {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Data de Publicação</label>
+            {/* Usamos um input de tipo date; o valor deve estar em formato ISO (YYYY-MM-DD) */}
             <input
               type="date"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              value={formattedDate}
-              onChange={(e) => {
-                const date = new Date(e.target.value);
-                const formatted = date.toLocaleDateString('pt-BR');
-                setEditedEmployee({ ...editedEmployee, dtPublicacao: formatted });
-              }}
+              value={editedEmployee.dtPublicacao}
+              onChange={(e) =>
+                setEditedEmployee({ ...editedEmployee, dtPublicacao: e.target.value })
+              }
             />
           </div>
           <div>
@@ -125,10 +146,16 @@ function EditModal({ employee, isOpen, onClose, onSave }: EditModalProps) {
           </div>
         </div>
         <div className="mt-6 flex justify-end space-x-3">
-          <button className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50" onClick={onClose}>
+          <button
+            className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50"
+            onClick={onClose}
+          >
             Cancelar
           </button>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" onClick={handleSave}>
+          <button
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            onClick={handleSave}
+          >
             Salvar
           </button>
         </div>
@@ -143,24 +170,27 @@ export function Employees() {
   const [selectedOrgan, setSelectedOrgan] = useState<string>('');
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
-  // Função para carregar dados do backend e atualizar o estado
   const loadData = async () => {
-    const orgs = await fetchOrganizations();
-    const emps = await fetchEmployees();
-    setOrganizations(orgs);
-    setEmployeesData(emps.map(transformEmployee));
+    try {
+      const orgs = await fetchOrganizations();
+      const emps = await fetchEmployees();
+      setOrganizations(orgs);
+      const transformed = emps.map(transformEmployee);
+      transformed.sort((a, b) => a.ordem - b.ordem);
+      setEmployeesData(transformed);
+    } catch (error) {
+      console.error('Erro ao carregar os dados', error);
+    }
   };
 
   useEffect(() => {
     loadData();
   }, []);
 
-  // Exibe no filtro apenas secretarias que possuem pelo menos um funcionário
   const availableOrganizations = useMemo(() => {
     return organizations.filter(org => employeesData.some(emp => emp.secretaria === org.sigla));
   }, [organizations, employeesData]);
 
-  // Sempre que o filtro disponível mudar, garante que o "selectedOrgan" seja um dos disponíveis
   useEffect(() => {
     if (availableOrganizations.length > 0) {
       if (!availableOrganizations.find(org => org.sigla === selectedOrgan)) {
@@ -171,39 +201,34 @@ export function Employees() {
     }
   }, [availableOrganizations, selectedOrgan]);
 
-  // Filtra os funcionários pela secretaria selecionada
   const organizationRows = useMemo(() => {
-    return employeesData.filter(emp => emp.secretaria === selectedOrgan);
+    const filtered = employeesData.filter(emp => emp.secretaria === selectedOrgan);
+    return filtered.sort((a, b) => a.ordem - b.ordem);
   }, [employeesData, selectedOrgan]);
 
-  // Calcula o total de Valor C.C. somente dos funcionários "Provido" da secretaria selecionada
   const totalCC = useMemo(() => {
     return organizationRows
       .filter(emp => emp.status === 'Provido')
       .reduce((sum, emp) => sum + (emp.valorCC || 0), 0);
   }, [organizationRows]);
 
-  // Dados para o gráfico (contagem de cargos Providos vs Vagos)
   const chartData = useMemo(() => {
     const providoCount = organizationRows.filter(emp => emp.status === 'Provido').length;
     const vagoCount = organizationRows.filter(emp => emp.status === 'Vago').length;
     return {
       labels: ['Provido', 'Vago'],
-      datasets: [
-        {
-          label: 'Cargos',
-          data: [providoCount, vagoCount],
-          backgroundColor: ['rgba(75,192,192,0.5)', 'rgba(255,99,132,0.5)'],
-          borderColor: ['rgba(75,192,192,1)', 'rgba(255,99,132,1)'],
-          borderWidth: 1,
-        },
-      ],
+      datasets: [{
+        label: 'Cargos',
+        data: [providoCount, vagoCount],
+        backgroundColor: ['rgba(75,192,192,0.5)', 'rgba(255,99,132,0.5)'],
+        borderColor: ['rgba(75,192,192,1)', 'rgba(255,99,132,1)'],
+        borderWidth: 1,
+      }],
     };
   }, [organizationRows]);
 
   const chartOptions = { responsive: true, maintainAspectRatio: false };
 
-  // Ações: criação, atualização e exclusão chamam a API e recarregam os dados
   const handleSaveEmployee = async (updatedEmployee: Employee) => {
     if (updatedEmployee.id === 'new') {
       try {
@@ -233,7 +258,6 @@ export function Employees() {
     }
   };
 
-  // Prepara um novo registro para inserção
   const handleAddNew = () => {
     const newEmployee: Employee = {
       id: 'new',
@@ -241,11 +265,38 @@ export function Employees() {
       cargo: { id: '', cargoGenerico: 'Novo Cargo', numero: 0, simbolo: '' },
       status: 'Vago',
       redistribuicao: 'Não',
-      dtPublicacao: '',
+      dtPublicacao: '', // O valor virá em ISO (YYYY-MM-DD) quando selecionado
       valorCC: 0,
       secretaria: selectedOrgan,
+      ordem: organizationRows.length + 1,
     };
     setEditingEmployee(newEmployee);
+  };
+
+  const handleDragEnd = async (result: any) => {
+    if (!result.destination) return;
+    const sourceIndex = result.source.index;
+    const destinationIndex = result.destination.index;
+    const newOrder = Array.from(organizationRows);
+    const [movedItem] = newOrder.splice(sourceIndex, 1);
+    newOrder.splice(destinationIndex, 0, movedItem);
+    const updatedOrganizationRows = newOrder.map((emp, index) => ({
+      ...emp,
+      ordem: index + 1,
+    }));
+    const newEmployeesData = employeesData.map(emp => {
+      if (emp.secretaria === selectedOrgan) {
+        const updatedEmp = updatedOrganizationRows.find(e => e.id === emp.id);
+        return updatedEmp ? updatedEmp : emp;
+      }
+      return emp;
+    });
+    setEmployeesData(newEmployeesData);
+    try {
+      await updateEmployeePositions(updatedOrganizationRows);
+    } catch (error) {
+      console.error('Erro ao atualizar posições', error);
+    }
   };
 
   return (
@@ -261,64 +312,93 @@ export function Employees() {
           ))}
         </select>
       </div>
-      <table className="min-w-full border-collapse mb-4">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border px-4 py-2">Nº</th>
-            <th className="border px-4 py-2">Cargo Genérico</th>
-            <th className="border px-4 py-2">Símbolo</th>
-            <th className="border px-4 py-2">Nome Servidor</th>
-            <th className="border px-4 py-2">Status</th>
-            <th className="border px-4 py-2">Redistribuição</th>
-            <th className="border px-4 py-2">Dt P./D.O.</th>
-            <th className="border px-4 py-2">Valor C.C.</th>
-            <th className="border px-4 py-2">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {organizationRows.map((emp, index) => (
-            <tr key={emp.id}>
-              <td className="border px-4 py-2">{index + 1}</td>
-              <td className="border px-4 py-2">{emp.cargo.cargoGenerico}</td>
-              <td className="border px-4 py-2">{emp.cargo.simbolo}</td>
-              <td className="border px-4 py-2">
-                {emp.status === 'Provido' ? emp.nomeServidor : <span className="text-gray-500">Vago</span>}
-              </td>
-              <td className="border px-4 py-2">{emp.status}</td>
-              <td className="border px-4 py-2">{emp.redistribuicao}</td>
-              <td className="border px-4 py-2">{emp.dtPublicacao || '-'}</td>
-              <td className="border px-4 py-2">
-                {emp.status === 'Provido'
-                  ? `R$ ${emp.valorCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-                  : '-'}
-              </td>
-              <td className="border px-4 py-2">
-                {emp.status === 'Provido' ? (
-                  <div className="flex space-x-2">
-                    <button onClick={() => setEditingEmployee(emp)} title="Editar">
-                      <Edit2 size={18} />
-                    </button>
-                    <button onClick={() => handleDeleteEmployee(emp)} title="Excluir" className="text-red-600 hover:text-red-800">
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                ) : (
-                  <button onClick={() => setEditingEmployee(emp)} className="bg-green-600 text-white px-2 py-1 rounded">
-                    Adicionar
-                  </button>
-                )}
-              </td>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <table className="min-w-full border-collapse mb-4">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border px-4 py-2">Nº</th>
+              <th className="border px-4 py-2">Cargo Genérico</th>
+              <th className="border px-4 py-2">Símbolo</th>
+              <th className="border px-4 py-2">Nome do Servidor</th>
+              <th className="border px-4 py-2">Status</th>
+              <th className="border px-4 py-2">Redistribuição</th>
+              <th className="border px-4 py-2">Dt P./D.O.</th>
+              <th className="border px-4 py-2">Valor C.C.</th>
+              <th className="border px-4 py-2">Ações</th>
             </tr>
-          ))}
-          <tr>
-            <td colSpan={9} className="text-center py-4">
-              <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={handleAddNew}>
-                Adicionar Novo
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+          </thead>
+          <Droppable droppableId="employees">
+            {(provided) => (
+              <tbody ref={provided.innerRef} {...provided.droppableProps}>
+                {organizationRows.length > 0 ? (
+                  organizationRows.map((emp, index) => (
+                    <Draggable key={emp.id} draggableId={emp.id} index={index}>
+                      {(provided) => (
+                        <tr
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                        >
+                          <td className="border px-4 py-2">{index + 1}</td>
+                          <td className="border px-4 py-2">{emp.cargo.cargoGenerico}</td>
+                          <td className="border px-4 py-2">{emp.cargo.simbolo}</td>
+                          <td className="border px-4 py-2">
+                            {emp.status === 'Provido' ? emp.nomeServidor : <span className="text-gray-500">Vago</span>}
+                          </td>
+                          <td className="border px-4 py-2">{emp.status}</td>
+                          <td className="border px-4 py-2">{emp.redistribuicao}</td>
+                          <td className="border px-4 py-2">
+                            {emp.dtPublicacao ? formatDateToBR(emp.dtPublicacao) : '-'}
+                          </td>
+                          <td className="border px-4 py-2">
+                            {emp.status === 'Provido'
+                              ? `R$ ${emp.valorCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                              : '-'}
+                          </td>
+                          <td className="border px-4 py-2">
+                            {emp.status === 'Provido' ? (
+                              <div className="flex space-x-2">
+                                <button onClick={() => setEditingEmployee(emp)} title="Editar">
+                                  <Edit2 size={18} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteEmployee(emp)}
+                                  title="Excluir"
+                                  className="text-red-600 hover:text-red-800"
+                                >
+                                  <Trash2 size={18} />
+                                </button>
+                              </div>
+                            ) : (
+                              <button onClick={() => setEditingEmployee(emp)} className="bg-green-600 text-white px-2 py-1 rounded">
+                                Adicionar
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      )}
+                    </Draggable>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={9} className="text-center py-4">Nenhum funcionário encontrado.</td>
+                  </tr>
+                )}
+                {/* Linha para o botão "Adicionar Novo" também dentro do mesmo <tbody> */}
+                <tr>
+                  <td colSpan={9} className="text-center py-4">
+                    <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={handleAddNew}>
+                      Adicionar Novo
+                    </button>
+                  </td>
+                </tr>
+                {provided.placeholder}
+              </tbody>
+            )}
+          </Droppable>
+        </table>
+      </DragDropContext>
+
       <div className="mb-4">
         <p className="font-bold">Total de Valor C.C.: R$ {totalCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
       </div>

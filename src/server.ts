@@ -1,27 +1,21 @@
-// server.ts
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import pg from 'pg';
+import employeeRoutes from './routes/employeeRoutes.js';
+import pool from './config/database.js';
 
 dotenv.config();
 
-const { Pool } = pg;
 const app = express();
 const port = parseInt(process.env.PORT || '5000', 10);
 
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-const pool = new Pool({
-  user: process.env.POSTGRES_USER || 'admin',
-  host: process.env.POSTGRES_HOST || 'postgres_db', // nome do serviço no Docker
-  database: process.env.POSTGRES_DB || 'gecom',
-  password: process.env.POSTGRES_PASSWORD || 'admin',
-  port: parseInt(process.env.POSTGRES_PORT || '5432', 10),
-});
+// Rotas de employees
+app.use('/api/employees', employeeRoutes);
 
-// Endpoint para organizações
+// Endpoint para organizations
 app.get('/api/organizations', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM organizations ORDER BY codigo');
@@ -32,18 +26,7 @@ app.get('/api/organizations', async (req, res) => {
   }
 });
 
-// Endpoint para funcionários
-app.get('/api/employees', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM employees ORDER BY id');
-    res.json(result.rows);
-  } catch (error: any) {
-    console.error('Erro ao buscar funcionários:', error);
-    res.status(500).send('Erro interno do servidor');
-  }
-});
-
-// Endpoint para cargos
+// Endpoint para positions
 app.get('/api/positions', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM positions ORDER BY numero');
@@ -54,7 +37,7 @@ app.get('/api/positions', async (req, res) => {
   }
 });
 
-// Endpoint para crescimento organizacional (retorna array vazio se não houver dados)
+// Endpoint para organization-growth (exemplo)
 app.get('/api/organization-growth', async (req, res) => {
   try {
     res.json([]);
