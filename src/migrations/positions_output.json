@@ -1,0 +1,2874 @@
+{
+    "positions": [
+        {
+            "numero": 1,
+            "cargo_efetivo": "Assessor Técnico",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 2,
+            "cargo_efetivo": "Gerente de Fiscalização de Limpeza Urbana",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 3,
+            "cargo_efetivo": "Gerente de Fiscalização, Apoio Administrativo e Defesa do Consumidor",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 4,
+            "cargo_efetivo": "Superintendente de Regulação dos Serviços Públicos Municipais",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 5,
+            "cargo_efetivo": "Chefe de Gabinete",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 6,
+            "cargo_efetivo": "Secretário Executivo",
+            "simbolo": "DAS-1"
+        },
+        {
+            "numero": 7,
+            "cargo_efetivo": "Gerente de Fiscalização de Transporte Público",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 8,
+            "cargo_efetivo": "Gerente de Cálculo Tarifário",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 9,
+            "cargo_efetivo": "Gerente de Educação e Defesa do Consumidor",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 10,
+            "cargo_efetivo": "Gerente de Administração e Finanças",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 11,
+            "cargo_efetivo": "Gerente de Fiscalização de Água e Esgoto",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 12,
+            "cargo_efetivo": "Diretor de Regulação de Serviços Públicos",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 13,
+            "cargo_efetivo": "Chefe da Divisão de Gestão de Pessoas",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 14,
+            "cargo_efetivo": "Assistente de Gabinete",
+            "simbolo": "DAS-7"
+        },
+        {
+            "numero": 15,
+            "cargo_efetivo": "Presidente",
+            "simbolo": "NE"
+        },
+        {
+            "numero": 16,
+            "cargo_efetivo": "Superintendente de Defesa do Consumidor (Procon)",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 17,
+            "cargo_efetivo": "Diretor do Contencioso",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 18,
+            "cargo_efetivo": "Gerente de Atendimento e Defesa do Consumidor",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 19,
+            "cargo_efetivo": "Gerente de Cálculo, Pesquisa e Defesa do Consumidor",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 20,
+            "cargo_efetivo": "Chefe da Divisão de Planejamento",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 21,
+            "cargo_efetivo": "Gerente de Parques e Jardins",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 22,
+            "cargo_efetivo": "Secretário Municipal",
+            "simbolo": "NE"
+        },
+        {
+            "numero": 23,
+            "cargo_efetivo": "Superintendente da Zeladoria Pública",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 24,
+            "cargo_efetivo": "Diretor de Zeladoria e Manutenção",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 25,
+            "cargo_efetivo": "SubPrefeito da Região Taquari",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 26,
+            "cargo_efetivo": "Gerente de Serviços Públicos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 27,
+            "cargo_efetivo": "Gerente de Gestão de Pessoas",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 28,
+            "cargo_efetivo": "Gerente de Varrição",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 29,
+            "cargo_efetivo": "Diretor de Governança, Padronização e Qualidade em Saúde",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 30,
+            "cargo_efetivo": "Gerente de Padronização das Diretrizes Clínicas, Protocolos, Fluxos e Organogramas na Saúde",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 31,
+            "cargo_efetivo": "Gerente de Execução Contratual",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 32,
+            "cargo_efetivo": "Assessor Especial de Comunicação",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 33,
+            "cargo_efetivo": "Chefe de Divisão da Central de Abastecimento da Saúde",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 34,
+            "cargo_efetivo": "Assessor Especial de Planejamento Estratégico em Saúde",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 35,
+            "cargo_efetivo": "Gerente de Engenharia e Manutenção dos Estabelecimentos de Saúde",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 36,
+            "cargo_efetivo": "Diretor de Vigilância Sanitária",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 37,
+            "cargo_efetivo": "Gerente de Estratégias e Políticas de Atenção Primária em Saúde",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 38,
+            "cargo_efetivo": "Superintendente de Integração, Governança e Padronização na Saúde",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 39,
+            "cargo_efetivo": "Gerente de Serviços Especializados em Saúde",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 40,
+            "cargo_efetivo": "Assessoria Especial em Procedimento Sanitário",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 41,
+            "cargo_efetivo": "Diretor de Integração das Redes de Atenção à Saúde",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 42,
+            "cargo_efetivo": "Diretor de Unidade de Vigilância e do Centro de Controle de Zoonoses",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 43,
+            "cargo_efetivo": "Superintendente de Vigilância em Saúde",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 44,
+            "cargo_efetivo": "Chefe da Divisão de Transporte e Logística",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 45,
+            "cargo_efetivo": "Gerente de Serviços Especializados em Atenção Psicossocial",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 46,
+            "cargo_efetivo": "Diretor de Execução Orçamentária e Financeira",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 47,
+            "cargo_efetivo": "Superintendente de Planejamento e Execução Orçamentária e Financeira",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 48,
+            "cargo_efetivo": "Coordenador de Projetos dos Estabelecimentos de Saúde",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 49,
+            "cargo_efetivo": "Coordenador de Folha de Pagamento",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 50,
+            "cargo_efetivo": "Assessor Especial Jurídico",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 51,
+            "cargo_efetivo": "Gerente de Planejamento de Aquisição e Contratos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 52,
+            "cargo_efetivo": "Diretor de Administração, Finanças e Planejamento",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 53,
+            "cargo_efetivo": "Superintendente de Tecnologia da Informação",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 54,
+            "cargo_efetivo": "Diretor de Tecnologia da Informação",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 55,
+            "cargo_efetivo": "Gerente de Tecnologia da Informação",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 56,
+            "cargo_efetivo": "Coordenador Setorial de Informática",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 57,
+            "cargo_efetivo": "Chefe da Divisão de Informática",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 58,
+            "cargo_efetivo": "Gerente de Manutenção de Frota",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 59,
+            "cargo_efetivo": "Gerente de Planejamento Operacional",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 60,
+            "cargo_efetivo": "Superintendente de Transporte Coletivo",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 61,
+            "cargo_efetivo": "Gerente de Logística",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 62,
+            "cargo_efetivo": "Diretor de Manutenção",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 63,
+            "cargo_efetivo": "Superintendente do Sistema de Bilhetagem Eletrônica",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 64,
+            "cargo_efetivo": "Superintendente de Administração, Finanças e Planejamento",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 65,
+            "cargo_efetivo": "Diretor de Controle de Utilização dos Serviços",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 66,
+            "cargo_efetivo": "Gerente de Manutenção da Garagem",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 67,
+            "cargo_efetivo": "Chefe da Divisão de Eventos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 68,
+            "cargo_efetivo": "Diretor de Relações com o Mercado Turístico",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 69,
+            "cargo_efetivo": "Chefe da Divisão da Unidade – Taquaruçu",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 70,
+            "cargo_efetivo": "Subcontrolador-Geral",
+            "simbolo": "DAS-1"
+        },
+        {
+            "numero": 71,
+            "cargo_efetivo": "Chefe da Divisão de Protocolo",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 72,
+            "cargo_efetivo": "Gerente de Administração, Finanças e Planejamento",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 73,
+            "cargo_efetivo": "Chefe de Divisão de Controle Interno",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 74,
+            "cargo_efetivo": "Superintendente de Controle Interno",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 75,
+            "cargo_efetivo": "Gerente do Portal da Transparência",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 76,
+            "cargo_efetivo": "Ouvidor-Geral",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 77,
+            "cargo_efetivo": "Chefe da Divisão de Comissão Permanente Disciplinar",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 78,
+            "cargo_efetivo": "Auditor-Geral",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 79,
+            "cargo_efetivo": "Controlador-Geral",
+            "simbolo": "NE"
+        },
+        {
+            "numero": 80,
+            "cargo_efetivo": "Diretor de Transparência e Integridade",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 81,
+            "cargo_efetivo": "Gerente de Proteção de Dados Pessoais",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 82,
+            "cargo_efetivo": "Corregedor-Geral",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 83,
+            "cargo_efetivo": "Diretor de Prestação de Contas",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 84,
+            "cargo_efetivo": "Chefe da Divisão de Apoio Pedagógico",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 85,
+            "cargo_efetivo": "Chefe da Divisão de Apoio - Audiovisual",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 86,
+            "cargo_efetivo": "Diretor de Ações Culturais",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 87,
+            "cargo_efetivo": "Gerente de Espaços de Arte e Cultura - Região Su",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 88,
+            "cargo_efetivo": "Gerente de Patrimônio Cultural",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 89,
+            "cargo_efetivo": "Gerente de Eventos Culturais",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 90,
+            "cargo_efetivo": "Chefe da Divisão de Apoio Técnico Operaciona",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 91,
+            "cargo_efetivo": "Gerente de Equipamentos Culturais",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 92,
+            "cargo_efetivo": "Gerente de Espaços de Arte e Cultura - Taquaralto",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 93,
+            "cargo_efetivo": "Gerente do Centro de Criatividade",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 94,
+            "cargo_efetivo": "Gerente de Bibliotecas Públicas",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 95,
+            "cargo_efetivo": "Chefe da Divisão de Apoio - Teatro",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 96,
+            "cargo_efetivo": "Gerente de Planejamento",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 97,
+            "cargo_efetivo": "Chefe da Divisão de Apoio - Galeria de Arte",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 98,
+            "cargo_efetivo": "Chefe da Divisão de Apoio Técnico-Administrativo",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 99,
+            "cargo_efetivo": "Diretor de Arte e Cultura",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 100,
+            "cargo_efetivo": "Gerente de Manutenção dos Espaços de Cultura",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 101,
+            "cargo_efetivo": "Gerente de Finanças",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 102,
+            "cargo_efetivo": "Chefe da Divisão de Apoio Operacional",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 103,
+            "cargo_efetivo": "Gerente de Espaços de Arte e Cultura - Taquaruçu",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 104,
+            "cargo_efetivo": "Gerente de Administração",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 105,
+            "cargo_efetivo": "Assessor Executivo",
+            "simbolo": "DAS-3"
+        },
+        {
+            "numero": 106,
+            "cargo_efetivo": "Gerente de Gestão",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 107,
+            "cargo_efetivo": "Chefe de Divisão da Secretaria Acadêmica",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 108,
+            "cargo_efetivo": "Chefe da Divisão Administrativa e Financeira",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 109,
+            "cargo_efetivo": "Chefe de Divisão de Gestão de Pessoas",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 110,
+            "cargo_efetivo": "Chefe de Divisão de Seleção, Habilitação e Certificação em Educação na Saúde",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 111,
+            "cargo_efetivo": "Gerente de Educação e Trabalho em Saúde",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 112,
+            "cargo_efetivo": "Chefe de Divisão de Monitoramento e Avaliação da Educação no Trabalho em Saúde",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 113,
+            "cargo_efetivo": "Chefe de Divisão de Educação e Trabalho em Saúde",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 114,
+            "cargo_efetivo": "Chefe de Divisão de Educação Permanente em Saúde",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 115,
+            "cargo_efetivo": "Chefe de Divisão de Pós-graduação e Pesquisa em Saúde Pública",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 116,
+            "cargo_efetivo": "Chefe de Divisão de Educação Popular e Controle Social no SUS",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 117,
+            "cargo_efetivo": "Ajudante de Ordens do Prefeito",
+            "simbolo": "DAS-3"
+        },
+        {
+            "numero": 118,
+            "cargo_efetivo": "Secretário-Chefe",
+            "simbolo": "NE"
+        },
+        {
+            "numero": 119,
+            "cargo_efetivo": "Assessor de Assuntos Estratégicos",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 120,
+            "cargo_efetivo": "Assessor Executivo de Imprensa do Prefeito",
+            "simbolo": "DAS-3"
+        },
+        {
+            "numero": 121,
+            "cargo_efetivo": "Diretor de Cerimonial do Gabinete",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 122,
+            "cargo_efetivo": "Chefe de Gabinete do Vice-Prefeito",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 123,
+            "cargo_efetivo": "Ajudante de Ordens do Vice-Prefeito",
+            "simbolo": "DAS-3"
+        },
+        {
+            "numero": 124,
+            "cargo_efetivo": "Chefe da Divisão de Assuntos Disciplinares",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 125,
+            "cargo_efetivo": "Gerente de Fiscalização Ambiental",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 126,
+            "cargo_efetivo": "Chefe da Divisão de Convênios",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 127,
+            "cargo_efetivo": "Gerente da Ronda Ostensiva Municipal (ROMU) e Segurança Institucional",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 128,
+            "cargo_efetivo": "Chefe da Divisão de Escalas",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 129,
+            "cargo_efetivo": "Corregedor da Guarda Metropolitana de Palmas",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 130,
+            "cargo_efetivo": "Chefe da Divisão de Instrução e Ensino",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 131,
+            "cargo_efetivo": "Diretor de Gestão e Finanças",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 132,
+            "cargo_efetivo": "Gerente de Segurança Patrimonial",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 133,
+            "cargo_efetivo": "Subcomandante da Guarda Metropolitana de Palmas",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 134,
+            "cargo_efetivo": "Comandante da Guarda Metropolitana de Palmas",
+            "simbolo": "DAS-1"
+        },
+        {
+            "numero": 135,
+            "cargo_efetivo": "Chefe da Divisão do SIOP",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 136,
+            "cargo_efetivo": "Diretor de Administração e Gestão de Pessoas",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 137,
+            "cargo_efetivo": "Gerente da Junta de Serviço Militar",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 138,
+            "cargo_efetivo": "Gerente de Planejamento e Convênios",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 139,
+            "cargo_efetivo": "Gerente do Guardião Escolar",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 140,
+            "cargo_efetivo": "Chefe de Divisão de Gerenciamento de Processos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 141,
+            "cargo_efetivo": "Procurador-Chefe da Subprocuradoria Administrativa",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 142,
+            "cargo_efetivo": "Procurador-Chefe da Subprocuradoria Fiscal e Tributária",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 143,
+            "cargo_efetivo": "Chefe da Divisão de Gerenciamento de Processos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 144,
+            "cargo_efetivo": "Procurador-Chefe da Subprocuradoria Judicial",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 145,
+            "cargo_efetivo": "Gerente do Patrimônio Imobiliário",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 146,
+            "cargo_efetivo": "Procurador-Geral do Município",
+            "simbolo": "NE"
+        },
+        {
+            "numero": 147,
+            "cargo_efetivo": "Chefe de Divisão de Avaliação",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 148,
+            "cargo_efetivo": "Procurador-Geral Adjunto",
+            "simbolo": "DAS-1"
+        },
+        {
+            "numero": 149,
+            "cargo_efetivo": "Chefe de Divisão de Estágios e Consignações",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 150,
+            "cargo_efetivo": "Diretor de Capacitação e Aperfeiçoamento da Escola de Governo",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 151,
+            "cargo_efetivo": "Chefe da Divisão de Controle e Admissão de Pessoal",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 152,
+            "cargo_efetivo": "Chefe da Divisão de Informação Previdenciária e Trabalhista",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 153,
+            "cargo_efetivo": "Chefe da Divisão de Organização e Controle de Almoxarifado",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 154,
+            "cargo_efetivo": "Superintendente de Folha de Pagamento",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 155,
+            "cargo_efetivo": "Chefe da Divisão de Acompanhamento e Relacionamento",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 156,
+            "cargo_efetivo": "Superintendente de Patrimônio e Almoxarifado",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 157,
+            "cargo_efetivo": "Chefe da Divisão de Folha de Pagamento",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 158,
+            "cargo_efetivo": "Diretor de Gestão de Pessoas",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 159,
+            "cargo_efetivo": "Superintendente de Gestão de Pessoas",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 160,
+            "cargo_efetivo": "Chefe da Divisão de Cálculos, Análise e Projeções Financeiras",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 161,
+            "cargo_efetivo": "Diretor da Folha de Pagamento",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 162,
+            "cargo_efetivo": "Diretor de Gestão do Patrimônio e Almoxarifado",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 163,
+            "cargo_efetivo": "Gerente de Acompanhamento e Relacionamento",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 164,
+            "cargo_efetivo": "Gerente de Projetos e Avaliação da Escola de Governo",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 165,
+            "cargo_efetivo": "Chefe da Divisão de Finanças",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 166,
+            "cargo_efetivo": "Gerente de Avaliação e Normatização",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 167,
+            "cargo_efetivo": "Gerente de Administração da Frota",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 168,
+            "cargo_efetivo": "Gerente da Folha de Pagamento e Consignações",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 169,
+            "cargo_efetivo": "Chefe da Divisão de Informação Funcional",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 170,
+            "cargo_efetivo": "Gerente de Controle e Manutenção",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 171,
+            "cargo_efetivo": "Gerente de Controle Patrimonial",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 172,
+            "cargo_efetivo": "Chefe da Divisão de Gestão de Cadastro",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 173,
+            "cargo_efetivo": "Gerente de Registro e Controle de Movimentações Contábeis",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 174,
+            "cargo_efetivo": "Chefe da Junta Médica Oficial",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 175,
+            "cargo_efetivo": "Diretor da Garagem Central",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 176,
+            "cargo_efetivo": "Chefe da Divisão de Gestão de Carreiras",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 177,
+            "cargo_efetivo": "Gerente de Administração de Pessoal",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 178,
+            "cargo_efetivo": "Gerente do Processamento de Dados",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 179,
+            "cargo_efetivo": "Gerente de Promoção e Eventos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 180,
+            "cargo_efetivo": "Gerente de Organização e Controle de Almoxarifado",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 181,
+            "cargo_efetivo": "Diretor de Esporte de Alto Rendimento",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 182,
+            "cargo_efetivo": "Diretor de Manutenção de Equipamentos Esportivos",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 183,
+            "cargo_efetivo": "Chefe da Divisão de Unidades Esportivas",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 184,
+            "cargo_efetivo": "Diretor de Eventos Esportivos",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 185,
+            "cargo_efetivo": "Gerente de Projetos Sociais e Comunitários",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 186,
+            "cargo_efetivo": "Chefe de Divisão de Esporte Escolar",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 187,
+            "cargo_efetivo": "Gerente de Políticas sobre Drogas",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 188,
+            "cargo_efetivo": "Diretor de Inclusão Social",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 189,
+            "cargo_efetivo": "Diretor de Políticas para Juventude",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 190,
+            "cargo_efetivo": "Chefe de Divisão de Políticas de Juventude",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 191,
+            "cargo_efetivo": "Superintendente de Políticas para Mulheres",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 192,
+            "cargo_efetivo": "Gerente de Atendimento",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 193,
+            "cargo_efetivo": "Coordenador do Centro de Referência da Mulher",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 194,
+            "cargo_efetivo": "Coordenador da Casa da Mulher Brasileira",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 195,
+            "cargo_efetivo": "Diretor de Proteção Social para Mulheres",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 196,
+            "cargo_efetivo": "Gerente de Ouvidoria",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 197,
+            "cargo_efetivo": "Gerente da Corregedoria",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 198,
+            "cargo_efetivo": "Gerente de Auditoria do SUS",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 199,
+            "cargo_efetivo": "Chefe de Divisão do Conselho Municipal de Saúde",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 200,
+            "cargo_efetivo": "Assessor Executivo de Captação de Recursos, Convênios, Consórcios e Parcerias no SUS",
+            "simbolo": "DAS-3"
+        },
+        {
+            "numero": 201,
+            "cargo_efetivo": "Coordenador de Demandas Administrativas",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 202,
+            "cargo_efetivo": "Coordenador de Demandas Judiciais na Saúde",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 203,
+            "cargo_efetivo": "Coordenador de Conformidade e Compliance no SUS",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 204,
+            "cargo_efetivo": "Superintendente de Gestão Administrativa",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 205,
+            "cargo_efetivo": "Coordenador de Manutenção Predial dos Estabelecimentos de Saúde",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 206,
+            "cargo_efetivo": "Coordenador de Conservação e Gerenciamento de Resíduos",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 207,
+            "cargo_efetivo": "Chefe da Divisão de Patrimônio",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 208,
+            "cargo_efetivo": "Gerente de Regulação, Controle e Avaliação em Saúde",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 209,
+            "cargo_efetivo": "Gerente de Sistemas e Tecnologias em Saúde",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 210,
+            "cargo_efetivo": "Coordenador de Análise de Processos e Contratos de Pessoal",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 211,
+            "cargo_efetivo": "Superintendente de Atenção à Saúde",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 212,
+            "cargo_efetivo": "Diretor Atenção Primária em Saúde",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 213,
+            "cargo_efetivo": "Coordenador de Prevenção e Promoção da Saúde",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 214,
+            "cargo_efetivo": "Coordenador das Equipes de Saúde na Família",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 215,
+            "cargo_efetivo": "Gerente de Gestão Territorial da Atenção Primária em Saúde",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 216,
+            "cargo_efetivo": "Coordenador do Distrito Administrativo em Saúde - Região Norte",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 217,
+            "cargo_efetivo": "Coordenador do Distrito Administrativo em Saúde - Região Central",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 218,
+            "cargo_efetivo": "Coordenador do Distrito Administrativo em Saúde - Região Sul",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 219,
+            "cargo_efetivo": "Coordenador de Enfermagem na Saúde da Família",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 220,
+            "cargo_efetivo": "Diretor de Atenção Secundária em Saúde",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 221,
+            "cargo_efetivo": "Coordenador de Segurança do Paciente e Qualidade",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 222,
+            "cargo_efetivo": "Coordenador de Gestão dos Indicadores Territoriais em Saúde",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 223,
+            "cargo_efetivo": "Diretor de Vigilância em Saúde",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 224,
+            "cargo_efetivo": "Gerente de Ações Estratégicas de Vigilância Epidemiológica em Saúde",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 225,
+            "cargo_efetivo": "Gerente de Assistência Farmacêutica e Insumos Estratégicos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 226,
+            "cargo_efetivo": "Diretor de Inovação e Gestão do Trabalho em Saúde",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 227,
+            "cargo_efetivo": "Gerente de Saúde do Trabalhador",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 228,
+            "cargo_efetivo": "Gerente de Governança e Segurança do Paciente no SUS",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 229,
+            "cargo_efetivo": "Gerente de Atenção Hospitalar, Urgência e Emergência",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 230,
+            "cargo_efetivo": "Superintendente de Serviços Públicos",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 231,
+            "cargo_efetivo": "Gerente de Aterro Sanitário",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 232,
+            "cargo_efetivo": "SubPrefeito do Plano Diretor Norte",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 233,
+            "cargo_efetivo": "SubPrefeito da Região Aureny e Taquaralto",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 234,
+            "cargo_efetivo": "Gerente de Manutenção - Sinalização Viária",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 235,
+            "cargo_efetivo": "Gerente de Pinturas e Reparos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 236,
+            "cargo_efetivo": "Gerente de Cemitérios",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 237,
+            "cargo_efetivo": "Gerente de Manutenção - Tapa Buraco",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 238,
+            "cargo_efetivo": "Gerente de Coleta Seletiva",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 239,
+            "cargo_efetivo": "SubPrefeito de Taquaruçu e Buritirana",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 240,
+            "cargo_efetivo": "Gerente de Manutenção - Paisagismo",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 241,
+            "cargo_efetivo": "Coordenador do Programa Passageiros do Futuro",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 242,
+            "cargo_efetivo": "Coordenador do Programa Pão Nosso de Cada Dia",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 243,
+            "cargo_efetivo": "Chefe da Divisão dos Restaurantes Comunitários",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 244,
+            "cargo_efetivo": "Gerente de Unidade de Atendimento - Parque do Idoso",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 245,
+            "cargo_efetivo": "Gerente de Apoio à Primeira Infância no Suas",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 246,
+            "cargo_efetivo": "Coordenador dos Restaurantes Populares",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 247,
+            "cargo_efetivo": "Coordenador dos Restaurantes Comunitários",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 248,
+            "cargo_efetivo": "Diretor de Programas Sociais e Políticas Setoriais",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 249,
+            "cargo_efetivo": "Chefe da Divisão de Atendimento de Vigilância Socioassistencia",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 250,
+            "cargo_efetivo": "Gerente de Supervisão e Apoio Administrativo aos Cras",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 251,
+            "cargo_efetivo": "Gerente de Segurança Alimentar e Nutricional",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 252,
+            "cargo_efetivo": "Gerente de Proteção Social de Alta Complexidade",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 253,
+            "cargo_efetivo": "Gerente de Unidade de Atendimento - Creas",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 254,
+            "cargo_efetivo": "Gerente de Atendimento para Pessoas em Risco Social e Direitos Violados",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 255,
+            "cargo_efetivo": "Gerente de Proteção Social de Média Complexidade",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 256,
+            "cargo_efetivo": "Gerente de Unidade de Atendimento - Cras",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 257,
+            "cargo_efetivo": "Gerente de Programas e Projetos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 258,
+            "cargo_efetivo": "Gerente de Unidade de Atendimento - Acessuas Trabalho",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 259,
+            "cargo_efetivo": "Gerente de Unidade de Atendimento - Medidas Socioeducativas",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 260,
+            "cargo_efetivo": "Chefe da Divisão de Convênios, Contratos, Emendas e Prestação de Contas",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 261,
+            "cargo_efetivo": "Gerente de Cadastro Único e Programa Bolsa Família",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 262,
+            "cargo_efetivo": "Gerente de Unidade de Atendimento - Casa Acolhida",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 263,
+            "cargo_efetivo": "Superintendente de Proteção Básica",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 264,
+            "cargo_efetivo": "Superintendente de Proteção Especial",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 265,
+            "cargo_efetivo": "Chefe da Divisão do Bolsa Família",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 266,
+            "cargo_efetivo": "Gerente de Unidade de Atendimento - Casa Abrigo Raio de Sol",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 267,
+            "cargo_efetivo": "Gerente do Programa de Erradicação do Trabalho Infantil - PETI",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 268,
+            "cargo_efetivo": "Chefe da Divisão Administrativa dos Cras",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 269,
+            "cargo_efetivo": "Chefe da Divisão de Inspeção Animal",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 270,
+            "cargo_efetivo": "Diretor de Inspeção Animal",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 271,
+            "cargo_efetivo": "Gerente de Inspeção Municipal",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 272,
+            "cargo_efetivo": "Coordenador de Assistência Técnica",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 273,
+            "cargo_efetivo": "Gerente de Operação de Máquinas Agrícolas",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 274,
+            "cargo_efetivo": "Diretor de Assistência Técnica",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 275,
+            "cargo_efetivo": "Chefe da Divisão de Controle de Máquinas Agrícolas",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 276,
+            "cargo_efetivo": "Diretor de Serviços do Interior",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 277,
+            "cargo_efetivo": "Chefe da Divisão de Jornalismo",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 278,
+            "cargo_efetivo": "Chefe de Divisão de Controle de Campanhas",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 279,
+            "cargo_efetivo": "Diretor de Jornalismo e Assessoria de Imprensa",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 280,
+            "cargo_efetivo": "Superintendente de Conteúdo",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 281,
+            "cargo_efetivo": "Gerente de Fotografia",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 282,
+            "cargo_efetivo": "Diretor de Comunicação Estratégica",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 283,
+            "cargo_efetivo": "Coordenador do Calendário de Eventos",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 284,
+            "cargo_efetivo": "Gerente de Produção Jornalística",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 285,
+            "cargo_efetivo": "Superintendente de Eventos",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 286,
+            "cargo_efetivo": "Diretor de Publicidade e Marketing",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 287,
+            "cargo_efetivo": "Gerente de Criação Publicitária",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 288,
+            "cargo_efetivo": "Gerente de Redes Sociais",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 289,
+            "cargo_efetivo": "Gerente de Apoio a Atividade Industrial",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 290,
+            "cargo_efetivo": "Chefe da Divisão Intermediação de Mão de Obra",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 291,
+            "cargo_efetivo": "Diretor de Formação e Qualificação Profissional – SINE",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 292,
+            "cargo_efetivo": "Chefe de Divisão de Tecnologia e Inovação",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 293,
+            "cargo_efetivo": "Coordenador de Contratos e Convênios",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 294,
+            "cargo_efetivo": "Coordenador de Tecnologia e Inovação",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 295,
+            "cargo_efetivo": "Superintendente de Inclusão Social e Produtiva – Banco do Povo",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 296,
+            "cargo_efetivo": "Superintendente de Empreendedorismo e Inovação",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 297,
+            "cargo_efetivo": "Superintendente de Indústria, Comercio e Serviços",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 298,
+            "cargo_efetivo": "Gerente de Tecnologias Aplicadas",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 299,
+            "cargo_efetivo": "Gerente de Análise de Projetos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 300,
+            "cargo_efetivo": "Diretor de Ciência, Tecnologia e Inovação Digital",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 301,
+            "cargo_efetivo": "Gerente de Apoio a Atividade Comercial e Serviços",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 302,
+            "cargo_efetivo": "Chefe da Divisão de Cadastro de Núcleos Urbanos Informais",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 303,
+            "cargo_efetivo": "Chefe da Divisão de Atendimento ao Cidadão",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 304,
+            "cargo_efetivo": "Chefe da Divisão de Topografia",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 305,
+            "cargo_efetivo": "Gerente de Análise de Projetos e Reestruturação Urbana",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 306,
+            "cargo_efetivo": "Chefe da Divisão de Fiscalização Fundiária",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 307,
+            "cargo_efetivo": "Chefe da Divisão de Fiscalização de Posturas",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 308,
+            "cargo_efetivo": "Chefe da Divisão de Análise de Loteamento",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 309,
+            "cargo_efetivo": "Gerente de Georreferenciamento",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 310,
+            "cargo_efetivo": "Superintendente de Urbanismo",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 311,
+            "cargo_efetivo": "Gerente de Fiscalização de Áreas Públicas e Loteamentos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 312,
+            "cargo_efetivo": "Gerente de Emissão e Controle de Títulos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 313,
+            "cargo_efetivo": "Diretor de Ordenamento Urbano",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 314,
+            "cargo_efetivo": "Chefe da Divisão Administrativa de Áreas Públicas e Loteamentos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 315,
+            "cargo_efetivo": "Gerente de Alvará de Funcionamento",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 316,
+            "cargo_efetivo": "Superintendente de Regularização Fundiária",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 317,
+            "cargo_efetivo": "Gerente de Fiscalização",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 318,
+            "cargo_efetivo": "Gerente de Fiscalização de Demandas Especiais",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 319,
+            "cargo_efetivo": "Gerente de Uso do Solo",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 320,
+            "cargo_efetivo": "Diretor de Regularização Fundiária",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 321,
+            "cargo_efetivo": "Gerente do Contencioso Administrativo",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 322,
+            "cargo_efetivo": "Chefe da Divisão Administrativa de Demandas Especiais",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 323,
+            "cargo_efetivo": "Diretor de Fiscalização de Obras e Posturas",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 324,
+            "cargo_efetivo": "Chefe da Divisão de Fiscalização de Obras",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 325,
+            "cargo_efetivo": "Diretor de Análises de Projetos",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 326,
+            "cargo_efetivo": "Gerente de Controle de Áreas Públicas",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 327,
+            "cargo_efetivo": "Superintendente de Fiscalização Urbana",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 328,
+            "cargo_efetivo": "Chefe da Divisão de Análises de Projetos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 329,
+            "cargo_efetivo": "Gerente de Cadastros e Informações Sociais",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 330,
+            "cargo_efetivo": "Chefe da Divisão de Contencioso Administrativo",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 331,
+            "cargo_efetivo": "Chefe da Divisão em Processos e Benefícios",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 332,
+            "cargo_efetivo": "Chefe da Divisão de Contratos de Obras",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 333,
+            "cargo_efetivo": "Gerente de Apoio Pedagógico da Educação Fundamental, Urbana e Campo",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 334,
+            "cargo_efetivo": "Chefe da Divisão de Apoio ao Desenvolvimento do Projeto Pedagógico das Unidades Educacionais",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 335,
+            "cargo_efetivo": "Chefe de Inspeção e Regulamentação Escolar",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 336,
+            "cargo_efetivo": "Diretor de Avaliação, Estatística e Formação",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 337,
+            "cargo_efetivo": "Chefe da Divisão de Estatística",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 338,
+            "cargo_efetivo": "Chefe da Divisão de Avaliação",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 339,
+            "cargo_efetivo": "Chefe da Divisão de Matemática FG",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 340,
+            "cargo_efetivo": "Chefe da Divisão de Ciências",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 341,
+            "cargo_efetivo": "Chefe da Divisão de Português",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 342,
+            "cargo_efetivo": "Chefe da Divisão de Formação Permanente",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 343,
+            "cargo_efetivo": "Chefe de Divisão de Informação e Tecnologia da Educação",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 344,
+            "cargo_efetivo": "Superintendente de Projetos Especiais",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 345,
+            "cargo_efetivo": "Diretor de Apoio a Gestão Escolar",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 346,
+            "cargo_efetivo": "Gerente dos Parâmetros da Qualidade na Educação Básica",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 347,
+            "cargo_efetivo": "Chefe da Divisão de Alimentação Escolar",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 348,
+            "cargo_efetivo": "Diretor de Apoio e Monitoramento as Unidades Executoras",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 349,
+            "cargo_efetivo": "Chefe da Divisão de Fiscalização",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 350,
+            "cargo_efetivo": "Chefe da Divisão de Controle de Processos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 351,
+            "cargo_efetivo": "Gerente de Acompanhamento de Licitações e Contratos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 352,
+            "cargo_efetivo": "Coordenador de Legislação e Normas",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 353,
+            "cargo_efetivo": "Diretor de Atendimento Educacional Especializado",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 354,
+            "cargo_efetivo": "Gerente de Educação Bilíngue de Surdos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 355,
+            "cargo_efetivo": "Gerente de Educação para Transtornos de Neurodesenvolvimento",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 356,
+            "cargo_efetivo": "Gerente de Apoio à Permanência do Educando na Unidade Educacional",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 357,
+            "cargo_efetivo": "Gerente de Controle de Prestação de Contas",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 358,
+            "cargo_efetivo": "Diretor de Educação Infantil",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 359,
+            "cargo_efetivo": "Superintendente de Educação Inclusiva",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 360,
+            "cargo_efetivo": "Diretor de Projetos e Obras",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 361,
+            "cargo_efetivo": "Gerente de Formação Permanente",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 362,
+            "cargo_efetivo": "Coordenador de Transporte Escolar",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 363,
+            "cargo_efetivo": "Diretor de Informação e Tecnologia da Educação",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 364,
+            "cargo_efetivo": "Diretor do Ensino Fundamental",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 365,
+            "cargo_efetivo": "Superintendente de Avaliação e Desempenho",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 366,
+            "cargo_efetivo": "Gerente de Apoio Pedagógico Infantil",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 367,
+            "cargo_efetivo": "Gerente de Inspeção e Regulamentação Escolar",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 368,
+            "cargo_efetivo": "Superintendente de Gestão Escolar",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 369,
+            "cargo_efetivo": "Superintendente do Programa de Gestão Compartilhada",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 370,
+            "cargo_efetivo": "Gerente de Transporte Escolar",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 371,
+            "cargo_efetivo": "Gerente de Tributos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 372,
+            "cargo_efetivo": "Gerente de Prestação de Contas",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 373,
+            "cargo_efetivo": "Chefe de Divisão de Fiscalização",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 374,
+            "cargo_efetivo": "Gerente da Secretaria-Executiva da Juref",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 375,
+            "cargo_efetivo": "Chefe da Divisão de Atendimento do Resolve Palmas",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 376,
+            "cargo_efetivo": "Superintendente da Contabilidade",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 377,
+            "cargo_efetivo": "Chefe da Divisão de Lançamento de Dados Contábeis",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 378,
+            "cargo_efetivo": "Gerente de Responsabilidade Fiscal",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 379,
+            "cargo_efetivo": "Gerente de Execução Fiscal",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 380,
+            "cargo_efetivo": "Gerente de Procedimentos Contábeis",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 381,
+            "cargo_efetivo": "Gerente de Normatização Tributária",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 382,
+            "cargo_efetivo": "Gerente de Cadastro Imobiliário",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 383,
+            "cargo_efetivo": "Diretor de Fiscalização",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 384,
+            "cargo_efetivo": "Gerente de Programação Financeira",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 385,
+            "cargo_efetivo": "Gerente de Atendimento Fiscal",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 386,
+            "cargo_efetivo": "Gerente de Estudos Tributários",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 387,
+            "cargo_efetivo": "Coordenador-Geral UEM",
+            "simbolo": "DAS-3"
+        },
+        {
+            "numero": 388,
+            "cargo_efetivo": "Coordenador Técnico UEM",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 389,
+            "cargo_efetivo": "Gerente de Cadastro Mobiliário",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 390,
+            "cargo_efetivo": "Diretor de Tributação",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 391,
+            "cargo_efetivo": "Chefe de Divisão da Juref",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 392,
+            "cargo_efetivo": "Diretor de Administração Financeira",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 393,
+            "cargo_efetivo": "Gerente de Integração de Dados",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 394,
+            "cargo_efetivo": "Gerente do Cadim",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 395,
+            "cargo_efetivo": "Diretor de Dívida Ativa",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 396,
+            "cargo_efetivo": "Superintendente do Tesouro Municipal",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 397,
+            "cargo_efetivo": "Superintendente de Administração Tributária",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 398,
+            "cargo_efetivo": "Gerente de Protesto Extrajudicial",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 399,
+            "cargo_efetivo": "Coordenador Financeiro UEM",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 400,
+            "cargo_efetivo": "Diretor de Informações Eletrônicas",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 401,
+            "cargo_efetivo": "Gerente de Conciliação de Receitas",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 402,
+            "cargo_efetivo": "Diretor de Avaliações e Perícias",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 403,
+            "cargo_efetivo": "Diretor de Arrecadação",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 404,
+            "cargo_efetivo": "Gerente de Mediação e Recuperação Tributária",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 405,
+            "cargo_efetivo": "Coordenador Administrativo UEM",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 406,
+            "cargo_efetivo": "Diretor de Controle e Informação",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 407,
+            "cargo_efetivo": "Gerente de Perícias",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 408,
+            "cargo_efetivo": "Diretor de Cadastro Fiscal",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 409,
+            "cargo_efetivo": "Diretor de Controle da Dívida Pública",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 410,
+            "cargo_efetivo": "Gerente de Avaliação Imobiliária",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 411,
+            "cargo_efetivo": "Diretor Presidente Juref",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 412,
+            "cargo_efetivo": "Gerente de Controle da Arrecadação",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 413,
+            "cargo_efetivo": "Diretor de Administração e Finanças",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 414,
+            "cargo_efetivo": "Gerente de Convênios",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 415,
+            "cargo_efetivo": "Superintendente de Programas Habitacionais",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 416,
+            "cargo_efetivo": "Diretor de Convênios",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 417,
+            "cargo_efetivo": "Chefe da Divisão de Projetos e Requalificação Urbana",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 418,
+            "cargo_efetivo": "Diretor de Projetos Sociais",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 419,
+            "cargo_efetivo": "Gerente de Projetos Sociais",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 420,
+            "cargo_efetivo": "Coordenador de Projetos Sociais",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 421,
+            "cargo_efetivo": "Gerente de Cadastro",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 422,
+            "cargo_efetivo": "Gerente de Pós-Ocupação",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 423,
+            "cargo_efetivo": "Diretor de Engenharia Habitac",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 424,
+            "cargo_efetivo": "Gerente de Acompanhamento de Obras",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 425,
+            "cargo_efetivo": "Coordenador de Execução Orçamentária",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 426,
+            "cargo_efetivo": "Gerente de Contratações Públicas",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 427,
+            "cargo_efetivo": "Coordenador de Planejamento",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 428,
+            "cargo_efetivo": "Coordenador de Pesquisas de Preços",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 429,
+            "cargo_efetivo": "Gerente de Almoxarifado",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 430,
+            "cargo_efetivo": "Chefe de Divisão de Registro e Controle de Almoxarifado",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 431,
+            "cargo_efetivo": "Gerente de Transporte",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 432,
+            "cargo_efetivo": "Coordenador de Controle de Veículos",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 433,
+            "cargo_efetivo": "Coordenador de Abastecimento",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 434,
+            "cargo_efetivo": "Coordenador de Pátio",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 435,
+            "cargo_efetivo": "Chefe de Divisão de Manutenção",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 436,
+            "cargo_efetivo": "Chefe de Divisão de Planejamento",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 437,
+            "cargo_efetivo": "Gerente de Projetos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 438,
+            "cargo_efetivo": "Chefe de Divisão de Projetos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 439,
+            "cargo_efetivo": "Gerente de Acessibilidade",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 440,
+            "cargo_efetivo": "Chefe de Divisão de Execução e Recuperação de Calçadas",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 441,
+            "cargo_efetivo": "Gerente de Manutenção e Conservação",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 442,
+            "cargo_efetivo": "Chefe de Divisão de Manutenção e Conservação de Prédios Públicos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 443,
+            "cargo_efetivo": "Diretor de Controle e Fiscalização",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 444,
+            "cargo_efetivo": "Coordenador de Fiscaliz",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 445,
+            "cargo_efetivo": "Coordenador de Controle",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 446,
+            "cargo_efetivo": "Gerente de Medições",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 447,
+            "cargo_efetivo": "Chefe de Divisão de Medições",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 448,
+            "cargo_efetivo": "Superintendente de Obras Viárias",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 449,
+            "cargo_efetivo": "Diretor de Planejamento de Obras Viárias",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 450,
+            "cargo_efetivo": "Gerente de Análise e Aprovação de Projetos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 451,
+            "cargo_efetivo": "Chefe de Divisão de Análise de Projetos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 452,
+            "cargo_efetivo": "Chefe de Divisão de Supervisão Ambiental",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 453,
+            "cargo_efetivo": "Diretor de Execução de Pavimentação",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 454,
+            "cargo_efetivo": "Gerente de Acompanhamento de Pavimentação",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 455,
+            "cargo_efetivo": "Diretor de Fiscalização de Obras Viárias",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 456,
+            "cargo_efetivo": "Gerente de Medição",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 457,
+            "cargo_efetivo": "Chefe de Divisão de Processos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 458,
+            "cargo_efetivo": "Diretor de Obras",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 459,
+            "cargo_efetivo": "Gerente de Sustentabilidade",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 460,
+            "cargo_efetivo": "Gerente de Obras",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 461,
+            "cargo_efetivo": "Gerente de Execução Financeira",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 462,
+            "cargo_efetivo": "Coordenador de Prestação de Contas",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 463,
+            "cargo_efetivo": "Gerente de Iluminação Pública",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 464,
+            "cargo_efetivo": "Chefe de Divisão de Comandos Elétricos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 465,
+            "cargo_efetivo": "Chefe de Divisão de Baixa Tensão",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 466,
+            "cargo_efetivo": "Gerente de Infraestrutura",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 467,
+            "cargo_efetivo": "Chefe de Divisão de Manutenção de Praças Públicas",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 468,
+            "cargo_efetivo": "Chefe de Divisão de Implantação de Iluminação Pública",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 469,
+            "cargo_efetivo": "Chefe de Divisão da Central de Atendimento ao Público",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 470,
+            "cargo_efetivo": "Chefe de Divisão de Fiscalização de Serviço de Iluminação Pública",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 471,
+            "cargo_efetivo": "Chefe de Divisão de Controle de Suprimentos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 472,
+            "cargo_efetivo": "Chefe de Divisão de Manutenção de Placas Solares",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 473,
+            "cargo_efetivo": "Superintendente de Energia",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 474,
+            "cargo_efetivo": "Superintendente de Obras Civis",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 475,
+            "cargo_efetivo": "Diretor de Execução Financeira e Prestação de Contas de Projetos Especiais",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 476,
+            "cargo_efetivo": "Diretor de Manutenção de Prédios Públicos e Acessibilidade",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 477,
+            "cargo_efetivo": "Coordenador de Contratos",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 478,
+            "cargo_efetivo": "Gerente de Energias Renováveis",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 479,
+            "cargo_efetivo": "Diretor de Planejamento e Projetos de Obras Civis",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 480,
+            "cargo_efetivo": "Superintendente de Projetos Especiais de Infraestrutura",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 481,
+            "cargo_efetivo": "Diretor de Gestão Ambiental",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 482,
+            "cargo_efetivo": "Diretor de Mudanças Climáticas e Cerrado Amazônico",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 483,
+            "cargo_efetivo": "Gerente de Políticas de Mitigação de Impactos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 484,
+            "cargo_efetivo": "Gerente de Projetos Ambientais",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 485,
+            "cargo_efetivo": "Chefe da Divisão de Contencioso Ambiental",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 486,
+            "cargo_efetivo": "Gerente de Monitoramento Ambiental",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 487,
+            "cargo_efetivo": "Chefe da Divisão de Projetos e Captação de Recursos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 488,
+            "cargo_efetivo": "Gerente de Manutenção e Recuperação de Áreas Protegidas",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 489,
+            "cargo_efetivo": "Diretor de Licenciamento",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 490,
+            "cargo_efetivo": "Gerente de Licenciamento",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 491,
+            "cargo_efetivo": "Chefe da Divisão de Unidades de Conservação",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 492,
+            "cargo_efetivo": "Superintendente da Defesa Civil Municipal",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 493,
+            "cargo_efetivo": "Gerente de Operacional de Trânsito e Transportes",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 494,
+            "cargo_efetivo": "Gerente de Prevenção e Mitigação de Desastres",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 495,
+            "cargo_efetivo": "Gerente de Recursos e Processamento de Infrações",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 496,
+            "cargo_efetivo": "Gerente de Educação para o Trânsito",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 497,
+            "cargo_efetivo": "Chefe de Divisão de Grupo de Fiscalização",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 498,
+            "cargo_efetivo": "Gerente de Intervenção Imediata",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 499,
+            "cargo_efetivo": "Gerente de Controle e Manutenção Semafórica",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 500,
+            "cargo_efetivo": "Superintendente de Transporte Coletivo Urbano de Passageiros",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 501,
+            "cargo_efetivo": "Coordenador de Fiscalização do Estacionamento Rotativo",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 502,
+            "cargo_efetivo": "Diretor de Planejamento do Sistema de Transporte Coletivo Urbano de Passageiros\nColetivo Urbano de Passageiros",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 503,
+            "cargo_efetivo": "Chefe da Divisão de Vistoria Técnica",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 504,
+            "cargo_efetivo": "Chefe de Divisão de Operação Semafórica",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 505,
+            "cargo_efetivo": "Diretor de Elaboração e Controle do Projeto de Concessão Pública",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 506,
+            "cargo_efetivo": "Chefe da Divisão de Gestão de Riscos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 507,
+            "cargo_efetivo": "Gerente de Implantação do Plano de Mobilidade Urbana",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 508,
+            "cargo_efetivo": "Gerente de Controle e Liberação de Veículos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 509,
+            "cargo_efetivo": "Superintendente de Mobilidade Urbana",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 510,
+            "cargo_efetivo": "Chefe da Divisão de Uso e Interdição de Vias",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 511,
+            "cargo_efetivo": "Superintendente de Convênios",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 512,
+            "cargo_efetivo": "Chefe da Divisão de Controle da Plataforma transferegov",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 513,
+            "cargo_efetivo": "Gerente de Compras Governamentais",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 514,
+            "cargo_efetivo": "Assistente de Compras Governamentais",
+            "simbolo": "DAS-7"
+        },
+        {
+            "numero": 515,
+            "cargo_efetivo": "Diretor de Concessões Públicas",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 516,
+            "cargo_efetivo": "Diretor de Parcerias e Investim",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 517,
+            "cargo_efetivo": "Gerente de Elaboração de Projetos de Parceria e Investimentos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 518,
+            "cargo_efetivo": "Agente de Contratações",
+            "simbolo": "FGE"
+        },
+        {
+            "numero": 519,
+            "cargo_efetivo": "Diretor de Despesas Comuns de Gestão",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 520,
+            "cargo_efetivo": "Superintendente de Licitações",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 521,
+            "cargo_efetivo": "Diretor de Controle Orçamentário",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 522,
+            "cargo_efetivo": "Gerente de Controle de Contratos Centralizados",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 523,
+            "cargo_efetivo": "Gerente de Planejamento de Licitações Comuns de Gestão",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 524,
+            "cargo_efetivo": "Gerente de Contratos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 525,
+            "cargo_efetivo": "Chefe da Divisão de Transparência Pública",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 526,
+            "cargo_efetivo": "Superintendente do Programa de Parcerias e Investimentos",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 527,
+            "cargo_efetivo": "Gerente de Pesquisa de Preços",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 528,
+            "cargo_efetivo": "Diretor de Planejamento Estratégico",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 529,
+            "cargo_efetivo": "Superintendente de Orçamento e Planejamento Estratégico",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 530,
+            "cargo_efetivo": "Diretor de Apoio à Execução Orçamentária",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 531,
+            "cargo_efetivo": "Chefe da Divisão de Registro",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 532,
+            "cargo_efetivo": "Gerente de Alterações Orçamentárias",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 533,
+            "cargo_efetivo": "Gerente de Controle e Impacto Orçamentário",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 534,
+            "cargo_efetivo": "Gerente de Acompanhamento de Programas Governamentais",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 535,
+            "cargo_efetivo": "Superintendente de Planejamento Urbano",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 536,
+            "cargo_efetivo": "Diretor de Projetos Urbanísticos",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 537,
+            "cargo_efetivo": "Coordenador de Projetos Urbanísticos",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 538,
+            "cargo_efetivo": "Diretor de Monitoramento",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 539,
+            "cargo_efetivo": "Diretor de Implantação",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 540,
+            "cargo_efetivo": "Assessor Executivo de Captação de Recursos, Convênios, Consórcios e Parcerias",
+            "simbolo": "DAS-3"
+        },
+        {
+            "numero": 541,
+            "cargo_efetivo": "Diretor de Controle Populacional",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 542,
+            "cargo_efetivo": "Coordenador de Estímulo a Adoção",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 543,
+            "cargo_efetivo": "Gerente de Promoção e Defesa da Fauna",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 544,
+            "cargo_efetivo": "Coordenador de Saúde de Animais Vulneráveis",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 545,
+            "cargo_efetivo": "Diretor de Combate aos Maus Tratos",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 546,
+            "cargo_efetivo": "Gerente de Comando, Fiscalização e Monitoramento",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 547,
+            "cargo_efetivo": "Diretor de Manejo e Proteção da Fauna Silvestre",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 548,
+            "cargo_efetivo": "Gerente de Parcerias para Acolhimento e Atendimento Transitório",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 549,
+            "cargo_efetivo": "Diretor de Saúde Anima",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 550,
+            "cargo_efetivo": "Coordenador de Gestão de Pessoas",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 551,
+            "cargo_efetivo": "Coordenador de Administração e Finanças",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 552,
+            "cargo_efetivo": "Superintendente de Proteção e Bem-estar Animal",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 553,
+            "cargo_efetivo": "Diretor de Educação Popular para Proteção e Bem Estar Animal",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 554,
+            "cargo_efetivo": "Diretor de Planejamento",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 555,
+            "cargo_efetivo": "Gerente de Captura e Devolução Ética de Animais",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 556,
+            "cargo_efetivo": "Coordenador de Educação Popular",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 557,
+            "cargo_efetivo": "Coordenador de Censo, Registro e Identificação",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 558,
+            "cargo_efetivo": "Gerente de Avaliação de Maus Tratos a Animais",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 559,
+            "cargo_efetivo": "Chefe da Divisão de Convênios e Contratos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 560,
+            "cargo_efetivo": "Gerente de Manejo Sustentável da Fauna",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 561,
+            "cargo_efetivo": "Secretário Extraordinário",
+            "simbolo": "NE"
+        },
+        {
+            "numero": 562,
+            "cargo_efetivo": "Gerente de Articulação Comunitária",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 563,
+            "cargo_efetivo": "Diretor de Articulação Comunitária",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 564,
+            "cargo_efetivo": "Gerente de Proteção da Cultura Afro-brasileira e de Direitos Humanos",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 565,
+            "cargo_efetivo": "Diretor de Políticas para Promoção da Igualdade Racial e de Direitos Humanos",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 566,
+            "cargo_efetivo": "Diretor de Integração Metropolitana",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 567,
+            "cargo_efetivo": "Gerente de Informação e Inteligência de Dados",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 568,
+            "cargo_efetivo": "Gerente de Representação em Brasília",
+            "simbolo": "DAS-5"
+        },
+        {
+            "numero": 569,
+            "cargo_efetivo": "Diretor de Representação Especial em Brasília",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 570,
+            "cargo_efetivo": "Superintendente de Articulação Legislativa",
+            "simbolo": "DAS-2"
+        },
+        {
+            "numero": 571,
+            "cargo_efetivo": "Assessor Especial Parlamentar",
+            "simbolo": "DAS-4"
+        },
+        {
+            "numero": 572,
+            "cargo_efetivo": "Coordenador de Eventos Comunitários",
+            "simbolo": "DAS-6"
+        },
+        {
+            "numero": 573,
+            "cargo_efetivo": "Chefe da Divisão de Controle de Requerimentos Legislativos",
+            "simbolo": "FG"
+        },
+        {
+            "numero": 574,
+            "cargo_efetivo": "Coordenador de Parcerias com Terceiro Setor",
+            "simbolo": "DAS-6"
+        }
+    ]
+}

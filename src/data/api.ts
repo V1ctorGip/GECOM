@@ -3,11 +3,13 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 // Mapeia os campos do Employee para o formato esperado pelo backend
 const mapEmployeeForServer = (employee) => ({
   servidor: employee.nomeServidor,
-  cargo_efetivo: employee.cargo.cargoGenerico,
+  cargo_efetivo: employee.cargo.cargo_efetivo, // usamos o campo correto
   simbolo: employee.cargo.simbolo,
-  data_nomeacao: employee.dtPublicacao, // O formato esperado é dd/MM/yyyy
+  data_nomeacao: employee.dtPublicacao, // formato ISO (YYYY-MM-DD)
   salario: employee.valorCC,
-  redistribuicao: employee.redistribuicao,
+  redistribuicao: employee.redistribuicao && employee.redistribuicao.trim() !== '' 
+    ? employee.redistribuicao 
+    : 'Não',
   status: employee.status,
   secretaria: employee.secretaria,
   ordem: employee.ordem,
@@ -113,6 +115,21 @@ export const updateEmployeePositions = async (employees) => {
     return await response.json();
   } catch (error) {
     console.error('❌ Erro ao atualizar posições dos funcionários:', error);
+    throw error;
+  }
+};
+
+export const createPosition = async (position) => {
+  try {
+    const response = await fetch(`${API_URL}/positions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(position),
+    });
+    if (!response.ok) throw new Error('Erro ao criar posição');
+    return await response.json();
+  } catch (error) {
+    console.error('❌ Erro ao criar posição:', error);
     throw error;
   }
 };

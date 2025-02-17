@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import employeeRoutes from './routes/employeeRoutes.js';
+import positionsRoutes from './routes/positionRoutes.js';
 import pool from './config/database.js';
 
 dotenv.config();
@@ -15,6 +16,9 @@ app.use(express.json());
 // Rotas de employees
 app.use('/api/employees', employeeRoutes);
 
+// Rotas de positions
+app.use('/api/positions', positionsRoutes);
+
 // Endpoint para organizations
 app.get('/api/organizations', async (req, res) => {
   try {
@@ -22,17 +26,6 @@ app.get('/api/organizations', async (req, res) => {
     res.json(result.rows);
   } catch (error: any) {
     console.error('Erro ao buscar organizações:', error);
-    res.status(500).send('Erro interno do servidor');
-  }
-});
-
-// Endpoint para positions
-app.get('/api/positions', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM positions ORDER BY numero');
-    res.json(result.rows);
-  } catch (error: any) {
-    console.error('Erro ao buscar cargos:', error);
     res.status(500).send('Erro interno do servidor');
   }
 });

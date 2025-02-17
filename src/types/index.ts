@@ -6,10 +6,11 @@ export type Organization = {
 };
 
 export type Position = {
-  id: string;                
-  numero: number;           // Se não houver, use 0 como default
-  cargoGenerico: string;    
-  simbolo: string;          // Se não houver, use uma string vazia
+  id: string;
+  numero: number;
+  cargo_efetivo: string;  // agora usando o nome do campo conforme o DB
+  simbolo: string;
+  secretaria: string;      // para filtrar os cargos da secretaria específica
 };
 
 export interface Employee {
