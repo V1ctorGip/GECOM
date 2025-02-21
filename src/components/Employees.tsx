@@ -1,7 +1,5 @@
-// src/components/Employees.tsx
-
 import React, { useState, useEffect, useMemo } from 'react';
-import { Edit2, Trash2 } from 'lucide-react';
+import { Edit2, Trash2, FileText } from 'lucide-react';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -13,11 +11,12 @@ import {
   Legend,
 } from 'chart.js';
 
-// Remova qualquer import de DataTableRowReorderParams, pois não existe.
-// import { DataTableRowReorderParams } from 'primereact/datatable';
-
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
+
+import jsPDF from 'jspdf';
+// Import para injetar autoTable no prototype do jsPDF
+import 'jspdf-autotable';
 
 import {
   fetchOrganizations,
@@ -32,23 +31,23 @@ import {
 
 import { Employee, Organization, Position } from '../types/index.js';
 
-// Definimos nós mesmos a interface do evento de reorder:
+// Interface para o evento de reorder no DataTable
 interface RowReorderEvent {
   originalEvent: React.DragEvent<HTMLElement>;
-  value: Employee[];   // Novo array reordenado
+  value: Employee[];
   dragIndex: number;
   dropIndex: number;
 }
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-/** Helper para converter data ISO (YYYY-MM-DD) em DD/MM/YYYY */
+// Helper para data
 const formatDateToBR = (isoDate: string): string => {
   const [year, month, day] = isoDate.split('-');
   return `${day}/${month}/${year}`;
 };
 
-/** Converte objetos do backend para o tipo Employee do frontend */
+// Transforma do backend para Employee do frontend
 const transformEmployee = (emp: any): Employee => ({
   id: String(emp.id),
   nomeServidor: emp.servidor || '',
@@ -60,7 +59,7 @@ const transformEmployee = (emp: any): Employee => ({
     secretaria: emp.secretaria,
   },
   status: emp.status === 'Provido' ? 'Provido' : 'Vago',
-  redistribuicao: emp.redistribuicao ? emp.redistribuicao : 'Não',
+  redistribuicao: emp.redistribuicao || 'Não',
   dtPublicacao: emp.data_nomeacao
     ? new Date(emp.data_nomeacao).toISOString().split('T')[0]
     : '',
@@ -69,7 +68,6 @@ const transformEmployee = (emp: any): Employee => ({
   ordem: emp.ordem || 0,
 });
 
-/** Modo do modal */
 type ModalMode = 'edit' | 'addVacant' | 'addNew';
 const getMode = (employee: Employee): ModalMode => {
   if (employee.id === 'new') return 'addNew';
@@ -77,7 +75,7 @@ const getMode = (employee: Employee): ModalMode => {
   return 'edit';
 };
 
-/** Props do modal de edição */
+/** Props do modal */
 type EditModalProps = {
   employee: Employee;
   mode: ModalMode;
@@ -116,7 +114,6 @@ function EditModal({
   }, [positions]);
 
   const handleSave = async () => {
-    // Se for addNew ou addVacant, forçamos status=Provido e nome em MAIÚSCULAS
     if (mode === 'addNew' || mode === 'addVacant') {
       const updated: Employee = {
         ...editedEmployee,
@@ -124,7 +121,6 @@ function EditModal({
         status: 'Provido',
       };
       if (mode === 'addNew') {
-        // Verifica se cargo/símbolo existe
         const exists = positions.find(
           (pos) =>
             pos.cargo_efetivo.trim().toLowerCase() ===
@@ -133,7 +129,6 @@ function EditModal({
               updated.cargo.simbolo.trim().toLowerCase()
         );
         if (!exists) {
-          // Se não existir, cria no banco
           const maxNumero =
             positions.length > 0 ? Math.max(...positions.map((p) => p.numero)) : 0;
           const novoNumero = maxNumero + 1;
@@ -151,12 +146,10 @@ function EditModal({
           }
         }
       }
-      setEditedEmployee(updated);
       alert('Servidor salvo com sucesso!');
       onSave(updated);
       onClose();
     } else {
-      // modo edit
       alert('Servidor salvo com sucesso!');
       onSave(editedEmployee);
       onClose();
@@ -173,7 +166,6 @@ function EditModal({
             ? 'Adicionar Servidor'
             : 'Editar Servidor'}
         </h2>
-
         <div className="space-y-4">
           {/* Nome Servidor */}
           <div>
@@ -312,7 +304,7 @@ function EditModal({
             </select>
           </div>
 
-          {/* Data Publicação */}
+          {/* Data de Publicação */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Data de Publicação</label>
             <input
@@ -331,7 +323,7 @@ function EditModal({
           {/* Valor C.C. */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Valor C.C.</label>
-            {mode === 'addNew' ? (
+            {(mode === 'addNew' || mode === 'edit') ? (
               <input
                 type="number"
                 className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"
@@ -419,7 +411,6 @@ export function Employees() {
   const [selectedOrgan, setSelectedOrgan] = useState<string>('');
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
-  /** Carrega dados iniciais do backend */
   const loadData = async () => {
     try {
       const orgs = await fetchOrganizations();
@@ -430,7 +421,6 @@ export function Employees() {
       setPositions(poss);
 
       const transformed = emps.map(transformEmployee);
-      // Ordena localmente
       transformed.sort((a, b) => a.ordem - b.ordem);
       setEmployeesData(transformed);
     } catch (error) {
@@ -442,14 +432,12 @@ export function Employees() {
     loadData();
   }, []);
 
-  /** Lista de organizações que realmente têm empregados */
   const availableOrganizations = useMemo(() => {
     return organizations.filter((org) =>
       employeesData.some((emp) => emp.secretaria === org.sigla)
     );
   }, [organizations, employeesData]);
 
-  /** Ajusta o selectedOrgan caso o anterior não exista mais */
   useEffect(() => {
     if (availableOrganizations.length > 0) {
       const stillExists = availableOrganizations.find((org) => org.sigla === selectedOrgan);
@@ -461,20 +449,17 @@ export function Employees() {
     }
   }, [availableOrganizations, selectedOrgan]);
 
-  /** Filtra os funcionários do órgão selecionado e ordena por ordem */
   const organizationRows = useMemo(() => {
     const filtered = employeesData.filter((emp) => emp.secretaria === selectedOrgan);
     return filtered.sort((a, b) => a.ordem - b.ordem);
   }, [employeesData, selectedOrgan]);
 
-  /** Soma total C.C. do órgão */
   const totalCC = useMemo(() => {
     return organizationRows
       .filter((emp) => emp.status === 'Provido')
       .reduce((sum, emp) => sum + (emp.valorCC || 0), 0);
   }, [organizationRows]);
 
-  /** Dados do gráfico */
   const chartData = useMemo(() => {
     const providoCount = organizationRows.filter((emp) => emp.status === 'Provido').length;
     const vagoCount = organizationRows.filter((emp) => emp.status === 'Vago').length;
@@ -494,7 +479,6 @@ export function Employees() {
 
   const chartOptions = { responsive: true, maintainAspectRatio: false };
 
-  /** Salva (create ou update) */
   const handleSaveEmployee = async (updatedEmployee: Employee) => {
     if (updatedEmployee.id === 'new') {
       try {
@@ -513,7 +497,6 @@ export function Employees() {
     }
   };
 
-  /** Exclui um funcionário */
   const handleDeleteEmployee = async (employee: Employee) => {
     if (window.confirm('Tem certeza que deseja excluir este servidor?')) {
       try {
@@ -525,7 +508,6 @@ export function Employees() {
     }
   };
 
-  /** Adiciona um novo servidor (modo addNew) */
   const handleAddNew = () => {
     const newEmployee: Employee = {
       id: 'new',
@@ -547,20 +529,13 @@ export function Employees() {
     setEditingEmployee(newEmployee);
   };
 
-  /**
-   * Quando o usuário reordenar as linhas no DataTable,
-   * atualizamos o array local (organizationRows) e
-   * também chamamos a API para persistir a nova ordem no BD.
-   */
   const handleRowReorder = async (e: RowReorderEvent) => {
-    const reordered = e.value; // array reordenado
-    // Ajustar 'ordem' = índice + 1
+    const reordered = e.value;
     const updatedOrgRows = reordered.map((emp, index) => ({
       ...emp,
       ordem: index + 1,
     }));
 
-    // Atualiza no estado principal
     const newEmployeesData = employeesData.map((emp) => {
       if (emp.secretaria === selectedOrgan) {
         const updatedEmp = updatedOrgRows.find((it) => it.id === emp.id);
@@ -570,7 +545,6 @@ export function Employees() {
     });
     setEmployeesData(newEmployeesData);
 
-    // Atualiza no backend
     try {
       await updateEmployeePositions(updatedOrgRows);
     } catch (error) {
@@ -578,12 +552,12 @@ export function Employees() {
     }
   };
 
-  /** Coluna # (índice da linha) */
+  // Renderiza a coluna # (índice da linha)
   const rowNumberTemplate = (_emp: Employee, options: { rowIndex: number }) => {
     return options.rowIndex + 1;
   };
 
-  /** Coluna: Servidor (Provido ou Vago) */
+  // Mostra nome do servidor ou "Vago"
   const servidorTemplate = (emp: Employee) => {
     if (emp.status === 'Provido') {
       return emp.nomeServidor;
@@ -591,7 +565,7 @@ export function Employees() {
     return <span className="text-gray-500">Vago</span>;
   };
 
-  /** Coluna: Valor C.C. */
+  // Mostra valor formatado ou "-"
   const valorTemplate = (emp: Employee) => {
     if (emp.status === 'Provido') {
       return `R$ ${emp.valorCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
@@ -599,12 +573,12 @@ export function Employees() {
     return '-';
   };
 
-  /** Coluna: Data Publicação */
+  // Mostra data no formato BR
   const dataPublicacaoTemplate = (emp: Employee) => {
     return emp.dtPublicacao ? formatDateToBR(emp.dtPublicacao) : '-';
   };
 
-  /** Coluna: Ações (botões) */
+  // Botões de ação
   const acoesTemplate = (emp: Employee) => {
     if (emp.status === 'Provido') {
       return (
@@ -632,26 +606,86 @@ export function Employees() {
     );
   };
 
+  // Gera PDF
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF('l', 'pt', 'a4');
+    doc.setFontSize(12);
+    doc.text(`Relatório de Servidores - ${selectedOrgan}`, 40, 40);
+
+    // Em vez de head + body com arrays de objetos,
+    // vamos usar a forma columns + body.
+    // "columns" define {header, dataKey}, e "body" é array de objetos.
+    // Assim não teremos [object Object].
+    const columns = [
+      { header: '#', dataKey: 'numero' },
+      { header: 'Cargo', dataKey: 'cargo' },
+      { header: 'Símbolo', dataKey: 'simbolo' },
+      { header: 'Servidor', dataKey: 'servidor' },
+      { header: 'Status', dataKey: 'status' },
+      { header: 'Redistribuição', dataKey: 'redistribuicao' },
+      { header: 'Publicação', dataKey: 'publicacao' },
+      { header: 'Valor C.C.', dataKey: 'valorCC' },
+    ];
+
+    // "rows": array de objetos, cada um com as chaves dataKey
+    const rows = organizationRows.map((emp, index) => ({
+      numero: index + 1,
+      cargo: emp.cargo.cargo_efetivo,
+      simbolo: emp.cargo.simbolo,
+      servidor: emp.status === 'Provido' ? emp.nomeServidor : 'Vago',
+      status: emp.status,
+      redistribuicao: emp.redistribuicao || '',
+      publicacao: emp.dtPublicacao ? formatDateToBR(emp.dtPublicacao) : '-',
+      valorCC:
+        emp.status === 'Provido'
+          ? `R$ ${emp.valorCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+          : '-',
+    }));
+
+    // Use "columns" em vez de "head"
+    doc.autoTable({
+      columns, // colunas definidas acima
+      body: rows, // dados
+      startY: 60,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [41, 128, 185] },
+      margin: { left: 40, right: 40 },
+    });
+
+    doc.save(`Relatorio-${selectedOrgan}.pdf`);
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Gerenciamento de Servidores</h1>
 
-      <div className="mb-4">
-        <label className="mr-2 font-medium">Selecione o Órgão:</label>
-        <select
-          className="p-2 border rounded-lg"
-          value={selectedOrgan}
-          onChange={(e) => setSelectedOrgan(e.target.value)}
+      <div className="mb-4 flex items-center space-x-4">
+        <div>
+          <label className="mr-2 font-medium">Selecione o Órgão:</label>
+          <select
+            className="p-2 border rounded-lg"
+            value={selectedOrgan}
+            onChange={(e) => setSelectedOrgan(e.target.value)}
+          >
+            {availableOrganizations.map((org) => (
+              <option key={org.codigo} value={org.sigla}>
+                {org.secretaria} ({org.sigla})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Botão PDF */}
+        <button
+          onClick={handleDownloadPDF}
+          className="flex items-center space-x-2 px-3 py-2 bg-gray-200 rounded hover:bg-gray-300"
+          title="Baixar PDF da tabela atual"
         >
-          {availableOrganizations.map((org) => (
-            <option key={org.codigo} value={org.sigla}>
-              {org.secretaria} ({org.sigla})
-            </option>
-          ))}
-        </select>
+          <FileText size={18} />
+          <span>PDF</span>
+        </button>
       </div>
 
-      {/* DataTable com reorderableRows */}
       <DataTable
         value={organizationRows}
         reorderableRows
@@ -659,66 +693,47 @@ export function Employees() {
         tableStyle={{ minWidth: '50rem' }}
         responsiveLayout="scroll"
       >
-        {/* Coluna para arrastar a linha */}
         <Column rowReorder style={{ width: '3rem' }} />
-
-        {/* # */}
         <Column
           header="#"
           body={rowNumberTemplate}
           style={{ width: '3rem', textAlign: 'center' }}
         />
-
-        {/* Cargo Genérico */}
         <Column
           field="cargo.cargo_efetivo"
           header="Cargo Genérico"
           style={{ minWidth: '8rem' }}
         />
-
-        {/* Símbolo */}
         <Column
           field="cargo.simbolo"
           header="Símbolo"
           style={{ minWidth: '6rem', textAlign: 'center' }}
         />
-
-        {/* Servidor */}
         <Column
           header="Servidor"
           body={servidorTemplate}
           style={{ minWidth: '10rem' }}
         />
-
-        {/* Status */}
         <Column
           field="status"
           header="Status"
           style={{ minWidth: '6rem', textAlign: 'center' }}
         />
-
-        {/* Redistribuição */}
         <Column
           field="redistribuicao"
           header="Redistribuição"
           style={{ minWidth: '7rem', textAlign: 'center' }}
         />
-
-        {/* Publicação */}
         <Column
           header="Publicação"
           body={dataPublicacaoTemplate}
           style={{ minWidth: '6rem', textAlign: 'center' }}
         />
-
-        {/* Valor C.C. */}
         <Column
           header="Valor C.C."
           body={valorTemplate}
           style={{ minWidth: '7rem', textAlign: 'center' }}
         />
-
-        {/* Ações */}
         <Column
           header="Ações"
           body={acoesTemplate}
@@ -726,14 +741,12 @@ export function Employees() {
         />
       </DataTable>
 
-      {/* Botão Adicionar Novo */}
       <div className="text-center py-4">
         <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={handleAddNew}>
           Adicionar Novo
         </button>
       </div>
 
-      {/* Total de Valor */}
       <div className="mb-4">
         <p className="font-bold">
           Total de Valor C.C.: R${' '}
@@ -741,7 +754,6 @@ export function Employees() {
         </p>
       </div>
 
-      {/* Gráfico de distribuição de cargos */}
       <div className="bg-white rounded-lg shadow p-4 mb-8">
         <h2 className="text-xl font-bold mb-4">Distribuição de Cargos</h2>
         <div style={{ position: 'relative', height: '300px' }}>
@@ -749,7 +761,6 @@ export function Employees() {
         </div>
       </div>
 
-      {/* Modal de Edição */}
       {editingEmployee && (
         <EditModal
           employee={editingEmployee}
