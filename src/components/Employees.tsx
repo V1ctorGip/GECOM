@@ -36,17 +36,11 @@ interface RowReorderEvent {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-/**
- * Converte data no formato ISO (YYYY-MM-DD) para DD/MM/YYYY
- */
 const formatDateToBR = (isoDate: string): string => {
   const [year, month, day] = isoDate.split('-');
   return `${day}/${month}/${year}`;
 };
 
-/**
- * Transforma o objeto retornado pelo backend em Employee
- */
 const transformEmployee = (emp: any): Employee => ({
   id: String(emp.id),
   nomeServidor: emp.servidor || '',
@@ -68,6 +62,7 @@ const transformEmployee = (emp: any): Employee => ({
 });
 
 type ModalMode = 'edit' | 'addVacant' | 'addNew';
+
 const getMode = (employee: Employee): ModalMode => {
   if (employee.id === 'new') return 'addNew';
   if (employee.status === 'Vago') return 'addVacant';
@@ -84,9 +79,6 @@ type EditModalProps = {
   onSave: (updatedEmployee: Employee) => void;
 };
 
-/**
- * Modal de edição/criação de servidor
- */
 function EditModal({
   employee,
   mode,
@@ -104,7 +96,6 @@ function EditModal({
 
   if (!isOpen) return null;
 
-  // Remove duplicados de cargos e símbolos
   const dedupedCargos = useMemo(() => {
     const set = new Set(positions.map((pos) => pos.cargo_efetivo));
     return Array.from(set);
@@ -115,25 +106,20 @@ function EditModal({
     return Array.from(set);
   }, [positions]);
 
-  /**
-   * Salva alterações (editar ou criar)
-   */
   const handleSave = async () => {
     if (mode === 'addNew' || mode === 'addVacant') {
-      // Ao criar servidor num cargo que estava vago
       const updated: Employee = {
         ...editedEmployee,
         nomeServidor: editedEmployee.nomeServidor.toUpperCase(),
         status: 'Provido'
       };
       if (mode === 'addNew') {
-        // Cria um novo cargo caso não exista
         const exists = positions.find(
           (pos) =>
             pos.cargo_efetivo.trim().toLowerCase() ===
-            updated.cargo.cargo_efetivo.trim().toLowerCase() &&
+              updated.cargo.cargo_efetivo.trim().toLowerCase() &&
             pos.simbolo.trim().toLowerCase() ===
-            updated.cargo.simbolo.trim().toLowerCase()
+              updated.cargo.simbolo.trim().toLowerCase()
         );
         if (!exists) {
           const maxNumero =
@@ -157,7 +143,6 @@ function EditModal({
       onSave(updated);
       onClose();
     } else {
-      // Edição de servidor existente
       alert('Servidor salvo com sucesso!');
       onSave(editedEmployee);
       onClose();
@@ -171,11 +156,10 @@ function EditModal({
           {mode === 'addNew'
             ? 'Adicionar Novo Servidor'
             : mode === 'addVacant'
-              ? 'Adicionar Servidor'
-              : 'Editar Servidor'}
+            ? 'Adicionar Servidor'
+            : 'Editar Servidor'}
         </h2>
         <div className="space-y-4">
-          {/* Nome do Servidor */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Nome Servidor</label>
             <input
@@ -193,7 +177,6 @@ function EditModal({
               }
             />
           </div>
-          {/* Cargo Genérico */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Cargo Genérico</label>
             {mode === 'addNew' ? (
@@ -243,7 +226,6 @@ function EditModal({
               </select>
             )}
           </div>
-          {/* Símbolo */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Símbolo</label>
             {mode === 'addNew' ? (
@@ -287,7 +269,6 @@ function EditModal({
               </select>
             )}
           </div>
-          {/* Redistribuição */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Redistribuição</label>
             <select
@@ -308,7 +289,6 @@ function EditModal({
               ))}
             </select>
           </div>
-          {/* Data de Publicação */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Data de Publicação</label>
             <input
@@ -323,7 +303,6 @@ function EditModal({
               }
             />
           </div>
-          {/* Valor C.C. */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Valor C.C.</label>
             {(mode === 'addNew' || mode === 'edit') ? (
@@ -347,7 +326,6 @@ function EditModal({
               />
             )}
           </div>
-          {/* Status (só é editável se for modo edit) */}
           {mode === 'edit' ? (
             <div>
               <label className="block text-sm font-medium text-gray-700">Status</label>
@@ -386,7 +364,6 @@ function EditModal({
             )
           )}
         </div>
-        {/* Botões de ação do modal */}
         <div className="mt-6 flex justify-end space-x-3">
           <button
             className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50 transition-colors"
@@ -406,31 +383,25 @@ function EditModal({
   );
 }
 
-/**
- * Componente principal de gerenciamento de servidores
- */
 export function Employees() {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [employeesData, setEmployeesData] = useState<Employee[]>([]);
   const [selectedOrgan, setSelectedOrgan] = useState<string>('');
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [cargoFilter, setCargoFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [symbolFilter, setSymbolFilter] = useState('');
 
-  /**
-   * Carrega dados iniciais (organizations, employees, positions)
-   */
   const loadData = async () => {
     try {
       const orgs = await fetchOrganizations();
       const emps = await fetchEmployees();
       const poss = await fetchPositions();
-
       setOrganizations(orgs);
       setPositions(poss);
-
       const transformed = emps.map(transformEmployee);
       transformed.sort((a, b) => a.ordem - b.ordem);
-
       setEmployeesData(transformed);
     } catch (error) {
       console.error('Erro ao carregar os dados', error);
@@ -441,19 +412,12 @@ export function Employees() {
     loadData();
   }, []);
 
-  /**
-   * Lista de órgãos realmente disponíveis, ou seja,
-   * aqueles que têm pelo menos um servidor/cargo cadastrado
-   */
   const availableOrganizations = useMemo(() => {
     return organizations.filter((org) =>
       employeesData.some((emp) => emp.secretaria === org.sigla)
     );
   }, [organizations, employeesData]);
 
-  /**
-   * Ajusta selectedOrgan se não existir mais
-   */
   useEffect(() => {
     if (availableOrganizations.length > 0) {
       const stillExists = availableOrganizations.find((org) => org.sigla === selectedOrgan);
@@ -465,29 +429,45 @@ export function Employees() {
     }
   }, [availableOrganizations, selectedOrgan]);
 
-  /**
-   * Filtra employees pelo órgão selecionado
-   */
   const organizationRows = useMemo(() => {
     const filtered = employeesData.filter((emp) => emp.secretaria === selectedOrgan);
     return filtered.sort((a, b) => a.ordem - b.ordem);
   }, [employeesData, selectedOrgan]);
 
-  /**
-   * Soma de Valor C.C. (salário) dos servidores providos
-   */
-  const totalCC = useMemo(() => {
-    return organizationRows
-      .filter((emp) => emp.status === 'Provido')
-      .reduce((sum, emp) => sum + (emp.valorCC || 0), 0);
+  const cargoOptions = useMemo(() => {
+    const setCargos = new Set(organizationRows.map((emp) => emp.cargo.cargo_efetivo));
+    return Array.from(setCargos).sort();
   }, [organizationRows]);
 
-  /**
-   * Gráfico de barras "Distribuição de Cargos" (Provido vs Vago)
-   */
+  const symbolOptions = useMemo(() => {
+    const setSymbols = new Set(organizationRows.map((emp) => emp.cargo.simbolo));
+    return Array.from(setSymbols).sort();
+  }, [organizationRows]);
+
+  const filteredRows = useMemo(() => {
+    return organizationRows.filter((emp) => {
+      if (cargoFilter && !emp.cargo.cargo_efetivo.toLowerCase().includes(cargoFilter.toLowerCase())) {
+        return false;
+      }
+      if (statusFilter && emp.status !== statusFilter) {
+        return false;
+      }
+      if (symbolFilter && !emp.cargo.simbolo.toLowerCase().includes(symbolFilter.toLowerCase())) {
+        return false;
+      }
+      return true;
+    });
+  }, [organizationRows, cargoFilter, statusFilter, symbolFilter]);
+
+  const totalCC = useMemo(() => {
+    return filteredRows
+      .filter((emp) => emp.status === 'Provido')
+      .reduce((sum, emp) => sum + (emp.valorCC || 0), 0);
+  }, [filteredRows]);
+
   const chartData = useMemo(() => {
-    const providoCount = organizationRows.filter((emp) => emp.status === 'Provido').length;
-    const vagoCount = organizationRows.filter((emp) => emp.status === 'Vago').length;
+    const providoCount = filteredRows.filter((emp) => emp.status === 'Provido').length;
+    const vagoCount = filteredRows.filter((emp) => emp.status === 'Vago').length;
     return {
       labels: ['Provido', 'Vago'],
       datasets: [
@@ -501,11 +481,8 @@ export function Employees() {
         }
       ]
     };
-  }, [organizationRows]);
+  }, [filteredRows]);
 
-  /**
-   * Opções de estilo e tooltip do gráfico
-   */
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -543,12 +520,8 @@ export function Employees() {
     }
   };
 
-  /**
-   * Salva (cria ou atualiza) o employee
-   */
   const handleSaveEmployee = async (updatedEmployee: Employee) => {
     if (updatedEmployee.id === 'new') {
-      // Criar novo
       try {
         await createEmployee(updatedEmployee);
         await loadData();
@@ -556,7 +529,6 @@ export function Employees() {
         console.error('Erro ao criar funcionário', error);
       }
     } else {
-      // Editar existente
       try {
         await updateEmployee(updatedEmployee);
         await loadData();
@@ -566,9 +538,6 @@ export function Employees() {
     }
   };
 
-  /**
-   * Exclui employee
-   */
   const handleDeleteEmployee = async (employee: Employee) => {
     if (window.confirm('Tem certeza que deseja excluir este servidor?')) {
       try {
@@ -580,9 +549,6 @@ export function Employees() {
     }
   };
 
-  /**
-   * Adiciona novo employee (status = 'Vago')
-   */
   const handleAddNew = () => {
     const newEmployee: Employee = {
       id: 'new',
@@ -604,9 +570,6 @@ export function Employees() {
     setEditingEmployee(newEmployee);
   };
 
-  /**
-   * Reordena as linhas (arrastar e soltar)
-   */
   const handleRowReorder = async (e: RowReorderEvent) => {
     const reordered = e.value;
     const updatedOrgRows = reordered.map((emp, index) => ({
@@ -628,24 +591,11 @@ export function Employees() {
     }
   };
 
-  /**
-   * Retorna o nome completo do órgão (secretaria) ao invés da sigla
-   */
   const selectedOrganizationFullName = useMemo(() => {
     const org = organizations.find((o) => o.sigla === selectedOrgan);
     return org ? org.secretaria : '';
   }, [organizations, selectedOrgan]);
 
-  /**
-   * Template para exibir o número da linha
-   */
-  const rowNumberTemplate = (_emp: Employee, options: { rowIndex: number }) => {
-    return options.rowIndex + 1;
-  };
-
-  /**
-   * Template para exibir o nome do servidor ou 'VAGO'
-   */
   const servidorTemplate = (emp: Employee) => {
     if (emp.status === 'Provido') {
       return emp.nomeServidor;
@@ -653,9 +603,6 @@ export function Employees() {
     return <span className="text-green-700 font-bold">VAGO</span>;
   };
 
-  /**
-   * Template para exibir o valor formatado ou '-'
-   */
   const valorTemplate = (emp: Employee) => {
     if (emp.status === 'Provido') {
       return `R$ ${emp.valorCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
@@ -663,16 +610,10 @@ export function Employees() {
     return '-';
   };
 
-  /**
-   * Template para exibir a data de publicação formatada
-   */
   const dataPublicacaoTemplate = (emp: Employee) => {
     return emp.dtPublicacao ? formatDateToBR(emp.dtPublicacao) : '-';
   };
 
-  /**
-   * Template para exibir botões de ação (Editar/Excluir ou Adicionar)
-   */
   const acoesTemplate = (emp: Employee) => {
     if (emp.status === 'Provido') {
       return (
@@ -706,16 +647,10 @@ export function Employees() {
     );
   };
 
-  /**
-   * Gera PDF com base nos dados do órgão selecionado
-   */
   const handleDownloadPDF = () => {
     const doc = new jsPDF('l', 'pt', 'a4');
     doc.setFontSize(12);
-
-    // Usar o nome completo do órgão no PDF
     doc.text(`Relatório de Servidores - ${selectedOrganizationFullName}`, 40, 40);
-
     const columns = [
       { header: '#', dataKey: 'numero' },
       { header: 'Cargo', dataKey: 'cargo' },
@@ -726,7 +661,7 @@ export function Employees() {
       { header: 'Publicação', dataKey: 'publicacao' },
       { header: 'Valor C.C.', dataKey: 'valorCC' }
     ];
-    const rows = organizationRows.map((emp, index) => ({
+    const rows = filteredRows.map((emp, index) => ({
       numero: index + 1,
       cargo: emp.cargo.cargo_efetivo,
       simbolo: emp.cargo.simbolo,
@@ -750,20 +685,22 @@ export function Employees() {
     doc.save(`Relatorio-${selectedOrganizationFullName}.pdf`);
   };
 
-  /**
-   * Destaca linha se for "Vago" (bg-green-50)
-   */
   const rowClassName = (emp: Employee) => {
     return emp.status === 'Vago' ? 'bg-green-50' : '';
   };
 
   return (
     <div className="p-6">
-      {/* Título principal */}
+      <style>
+        {`
+          .p-datatable .p-datatable-thead > tr > th,
+          .p-datatable .p-datatable-tbody > tr > td {
+            vertical-align: middle !important;
+          }
+        `}
+      </style>
       <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Gerenciamento de Servidores</h1>
-
-      {/* Filtro + PDF */}
-      <div className="flex flex-col items-center justify-center md:flex-row md:justify-center gap-4 mb-4">
+      <div className="flex flex-col md:flex-row flex-wrap items-center justify-center gap-4 mb-4">
         <div className="flex items-center space-x-2">
           <label className="font-medium">Selecione o Órgão:</label>
           <select
@@ -778,6 +715,48 @@ export function Employees() {
             ))}
           </select>
         </div>
+        <div className="flex items-center space-x-2">
+          <label className="font-medium">Cargo:</label>
+          <select
+            className="p-2 border rounded-lg"
+            value={cargoFilter}
+            onChange={(e) => setCargoFilter(e.target.value)}
+          >
+            <option value="">Todos</option>
+            {cargoOptions.map((cargo) => (
+              <option key={cargo} value={cargo}>
+                {cargo}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-center space-x-2">
+          <label className="font-medium">Status:</label>
+          <select
+            className="p-2 border rounded-lg"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">Todos</option>
+            <option value="Provido">Provido</option>
+            <option value="Vago">Vago</option>
+          </select>
+        </div>
+        <div className="flex items-center space-x-2">
+          <label className="font-medium">Símbolo:</label>
+          <select
+            className="p-2 border rounded-lg"
+            value={symbolFilter}
+            onChange={(e) => setSymbolFilter(e.target.value)}
+          >
+            <option value="">Todos</option>
+            {symbolOptions.map((symbol) => (
+              <option key={symbol} value={symbol}>
+                {symbol}
+              </option>
+            ))}
+          </select>
+        </div>
         <button
           onClick={handleDownloadPDF}
           className="flex items-center space-x-2 px-3 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
@@ -787,8 +766,6 @@ export function Employees() {
           <span>PDF</span>
         </button>
       </div>
-
-      {/* Nome do órgão filtrado ao centro (com nome completo) */}
       {selectedOrgan && selectedOrganizationFullName && (
         <div className="flex justify-center mb-4">
           <div className="bg-indigo-100 text-indigo-800 px-4 py-2 rounded-md">
@@ -796,12 +773,9 @@ export function Employees() {
           </div>
         </div>
       )}
-
-      {/* DataTable com gridlines e centralização */}
-      {/* DATA TABLE COM GRIDLINES, ZEBRADO E ALINHAMENTO VERTICAL ENTRE CABEÇALHO E DADOS */}
       <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
         <DataTable
-          value={organizationRows}
+          value={filteredRows}
           dataKey="id"
           reorderableRows
           onRowReorder={handleRowReorder}
@@ -810,8 +784,10 @@ export function Employees() {
           rowClassName={rowClassName}
           className="p-datatable-gridlines p-datatable-striped p-datatable-sm"
           tableStyle={{ minWidth: '50rem' }}
+          paginator
+          rows={10}
+          rowsPerPageOptions={[10, 25, 50, 100, filteredRows.length]}
         >
-          {/* Coluna combinada: Ícone de reorder + número da linha */}
           <Column
             header="#"
             headerClassName="text-center"
@@ -828,7 +804,6 @@ export function Employees() {
             )}
             rowReorder
           />
-
           <Column
             field="cargo.cargo_efetivo"
             header="Cargo Genérico"
@@ -839,7 +814,6 @@ export function Employees() {
             bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
             style={{ minWidth: '10rem' }}
           />
-
           <Column
             field="cargo.simbolo"
             header="Símbolo"
@@ -850,7 +824,6 @@ export function Employees() {
             bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
             style={{ minWidth: '6rem' }}
           />
-
           <Column
             header="Nome Servidor"
             body={servidorTemplate}
@@ -861,7 +834,6 @@ export function Employees() {
             bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
             style={{ minWidth: '10rem' }}
           />
-
           <Column
             field="status"
             header="Status"
@@ -872,7 +844,6 @@ export function Employees() {
             bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
             style={{ minWidth: '6rem' }}
           />
-
           <Column
             field="redistribuicao"
             header="Redistribuição"
@@ -883,7 +854,6 @@ export function Employees() {
             bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
             style={{ minWidth: '7rem' }}
           />
-
           <Column
             header="Publicação"
             body={dataPublicacaoTemplate}
@@ -894,7 +864,6 @@ export function Employees() {
             bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
             style={{ minWidth: '6rem' }}
           />
-
           <Column
             header="Valor C.C."
             body={valorTemplate}
@@ -905,7 +874,6 @@ export function Employees() {
             bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
             style={{ minWidth: '7rem' }}
           />
-
           <Column
             header="Ações"
             body={acoesTemplate}
@@ -918,8 +886,6 @@ export function Employees() {
           />
         </DataTable>
       </div>
-
-      {/* Botão de adicionar novo */}
       <div className="text-center py-4">
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
@@ -928,24 +894,18 @@ export function Employees() {
           Adicionar Novo
         </button>
       </div>
-
-      {/* Total Salarial centralizado */}
       <div className="mb-4 text-center">
         <p className="font-bold text-lg">
           Total Salarial: R${' '}
           {totalCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
         </p>
       </div>
-
-      {/* Gráfico de barras (Provido vs Vago) */}
       <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4 mb-8">
         <h2 className="text-xl font-bold mb-4 text-gray-800 text-center">Distribuição de Cargos</h2>
         <div style={{ position: 'relative', height: '300px' }}>
           <Bar data={chartData} options={chartOptions} />
         </div>
       </div>
-
-      {/* Modal de edição/adição de servidor */}
       {editingEmployee && (
         <EditModal
           employee={editingEmployee}
