@@ -2,14 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { fetchOrganizations, fetchEmployees, fetchPositions } from '../data/api.js';
 import { LayoutDashboard, Users, Building2, Briefcase } from 'lucide-react';
-import { Bar, Pie, Line } from 'react-chartjs-2';
+import { Bar, Pie } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
-  PointElement,
-  LineElement,
   Title,
   Tooltip,
   Legend,
@@ -21,8 +19,6 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
-  PointElement,
-  LineElement,
   Title,
   Tooltip,
   Legend,
@@ -36,31 +32,44 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Guardaremos um array para o último gráfico (quantidade de cargos por sigla)
-  const [positionsBySecretaria, setPositionsBySecretaria] = useState<{ sigla: string; total: number }[]>([]);
+  // Vetor para “Quantidade de cargos_efetivo distintos por órgão”
+  const [cargosByOrg, setCargosByOrg] = useState<Array<{ sigla: string; total: number }>>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
+
         const orgs = await fetchOrganizations();
-        setOrganizations(orgs);
         const emps = await fetchEmployees();
-        setEmployees(emps);
         const pos = await fetchPositions();
+
+        setOrganizations(orgs);
+        setEmployees(emps);
         setPositions(pos);
 
-        // Agrupar positions por secretaria (caso a API retorne "secretaria" em cada Position)
-        const mapSec = new Map<string, number>();
-        pos.forEach((p) => {
-          const sec = p.secretaria || 'N/D';
-          mapSec.set(sec, (mapSec.get(sec) || 0) + 1);
+        // Agrupar os EMPLOYEES por sigla, contando CARGOS distintos
+        const mapCargosPorOrg = new Map<string, Set<string>>();
+        emps.forEach((emp: Employee) => {
+          // Pega a sigla do orgão
+          const sigla = emp.secretaria || 'N/D';
+
+          if (!mapCargosPorOrg.has(sigla)) {
+            mapCargosPorOrg.set(sigla, new Set());
+          }
+
+          // Adiciona o cargo do emp no Set. 
+          // Se seu employee é aninhado => emp.cargo.cargo_efetivo
+          mapCargosPorOrg.get(sigla)?.add(emp.cargo.cargo_efetivo);
         });
-        const result = Array.from(mapSec.entries()).map(([key, value]) => ({
-          sigla: key,
-          total: value
+
+        // Transforma em array [{ sigla, total }, ...]
+        const result = Array.from(mapCargosPorOrg.entries()).map(([sigla, cargoSet]) => ({
+          sigla,
+          total: cargoSet.size
         }));
-        setPositionsBySecretaria(result);
+
+        setCargosByOrg(result);
       } catch (err) {
         setError('Erro ao carregar os dados. Verifique sua conexão com o backend.');
       } finally {
@@ -78,14 +87,14 @@ export function Dashboard() {
     return <p className="text-center text-red-500">{error}</p>;
   }
 
-  // Quantidades para uso nos cards
-  const occupiedPositions = employees.filter((employee) => employee.status === 'Provido').length;
-  const vacantPositions = employees.filter((employee) => employee.status === 'Vago').length;
-  const diretaCount = organizations.filter((organization) => organization.classificacao === 'DIRETA').length;
-  const indiretaCount = organizations.filter((organization) => organization.classificacao === 'INDIRETA').length;
+  // Cartões de resumo
+  const occupiedPositions = employees.filter((e) => e.status === 'Provido').length;
+  const vacantPositions = employees.filter((e) => e.status === 'Vago').length;
+  const diretaCount = organizations.filter((org) => org.classificacao === 'DIRETA').length;
+  const indiretaCount = organizations.filter((org) => org.classificacao === 'INDIRETA').length;
   const totalOrganizations = organizations.length;
 
-  // GRÁFICO 1: Distribuição de Órgãos (Barra)
+  // GRÁFICO 1: Distribuição de Órgãos (barras)
   const barChartData = {
     labels: ['DIRETA', 'INDIRETA'],
     datasets: [
@@ -100,7 +109,7 @@ export function Dashboard() {
     ]
   };
 
-  // GRÁFICO 2: Percentual por Classificação (Pizza)
+  // GRÁFICO 2: Percentual por Classificação (pizza)
   const pieChartData = {
     labels: ['DIRETA', 'INDIRETA'],
     datasets: [
@@ -119,34 +128,47 @@ export function Dashboard() {
     ]
   };
 
-  // GRÁFICO 3: Evolução do Número de Órgãos -> mostrando quantidade de cargos por sigla
-  const lineLabels = positionsBySecretaria.map((item) => item.sigla);
-  const lineValues = positionsBySecretaria.map((item) => item.total);
+  // GRÁFICO 3: “Quantidade de cargos_efetivo distintos por Órgão”
+  const orgLabels = cargosByOrg.map((item) => item.sigla);
+  const orgValues = cargosByOrg.map((item) => item.total);
 
-  const lineChartData = {
-    labels: lineLabels,
+  // Cores (uma cor por órgão)
+  const colorPalette = [
+    'rgba(59, 130, 246, 0.6)',
+    'rgba(34, 197, 94, 0.6)',
+    'rgba(139, 92, 246, 0.6)',
+    'rgba(251, 191, 36, 0.6)',
+    'rgba(239, 68, 68, 0.6)',
+    'rgba(236, 72, 153, 0.6)',
+    'rgba(45, 212, 191, 0.6)',
+    'rgba(250, 204, 21, 0.6)',
+    'rgba(16, 185, 129, 0.6)'
+    // Adicione mais cores se precisar
+  ];
+
+  const orgBarChartData = {
+    labels: orgLabels,
     datasets: [
       {
-        label: 'Quantidade de Cargos',
-        data: lineValues,
-        borderColor: 'rgba(167, 139, 250, 1)',
-        backgroundColor: 'rgba(167, 139, 250, 0.2)',
+        label: 'Cargos Efetivos Distintos',
+        data: orgValues,
+        backgroundColor: orgLabels.map((_, i) => colorPalette[i % colorPalette.length]),
+        borderColor: orgLabels.map(
+          (_, i) => colorPalette[i % colorPalette.length].replace('0.6', '1')
+        ),
         borderWidth: 2,
-        fill: true,
-        tension: 0.3
+        borderRadius: 5
       }
     ]
   };
 
-  // Opções de estilo e tooltip para os gráficos
+  // Opções de estilo e tooltips
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        labels: {
-          color: '#1F2937'
-        }
+        labels: { color: '#1F2937' }
       },
       tooltip: {
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -158,32 +180,23 @@ export function Dashboard() {
     },
     scales: {
       x: {
-        ticks: {
-          color: '#374151'
-        },
-        grid: {
-          color: '#E5E7EB'
-        }
+        ticks: { color: '#374151' },
+        grid: { color: '#E5E7EB' }
       },
       y: {
-        ticks: {
-          color: '#374151'
-        },
-        grid: {
-          color: '#E5E7EB'
-        }
+        ticks: { color: '#374151' },
+        grid: { color: '#E5E7EB' }
       }
     }
   };
 
   return (
-    // ALTERADO: Usamos container menor e deixamos a responsividade para o Layout
-    <div className="p-6"> 
+    <div className="p-6">
       <header className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Painel de Controle</h1>
       </header>
 
-      {/* CARDS: cores mais suaves e transparentes, seguindo as cores dos ícones */}
+      {/* CARDS DE RESUMO */}
       <section className="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div
           className="rounded-lg p-6 shadow hover:shadow-md transition-shadow"
@@ -238,14 +251,17 @@ export function Dashboard() {
         </div>
       </section>
 
-      {/* GRÁFICOS: cores mais suaves e tooltips brancos */}
+      {/* GRÁFICOS: DISTRIBUIÇÃO (BARRA) e CLASSIFICAÇÃO (PIZZA) */}
       <section className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Gráfico 1 */}
         <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4">
           <h2 className="text-xl font-bold mb-2 text-gray-800">Distribuição de Órgãos</h2>
           <div className="relative h-64">
             <Bar data={barChartData} options={chartOptions} />
           </div>
         </div>
+
+        {/* Gráfico 2 */}
         <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4">
           <h2 className="text-xl font-bold mb-2 text-gray-800">Percentual por Classificação</h2>
           <div className="relative h-64">
@@ -254,12 +270,18 @@ export function Dashboard() {
         </div>
       </section>
 
+      {/* GRÁFICO 3: Quantidade de Cargos por Órgão */}
       <section className="mb-8">
         <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4">
-          <h2 className="text-xl font-bold mb-2 text-gray-800">Evolução do Número de Órgãos</h2>
-          <div className="relative h-64">
-            {/* AGORA MOSTRANDO QUANTIDADE DE CARGOS POR SIGLA (lineChartData) */}
-            <Line data={lineChartData} options={chartOptions} />
+          <h2 className="text-xl font-bold mb-2 text-gray-800">
+            Quantidade de Cargos por Órgão
+          </h2>
+
+          {/* Se houver muitos órgãos, podemos permitir rolagem horizontal */}
+          <div style={{ width: '100%', overflowX: 'auto' }}>
+            <div style={{ minWidth: '800px', height: '400px', position: 'relative' }}>
+              <Bar data={orgBarChartData} options={chartOptions} />
+            </div>
           </div>
         </div>
       </section>

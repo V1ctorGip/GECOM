@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from './context/AuthContext.js';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
+import { Positions } from '@components/Positions.js'; 
 
 
 function AppContent() {
@@ -27,7 +28,7 @@ function AppContent() {
       case 'organizations':
         return <Organizations />;
       case 'positions':
-        return <div>Cargos</div>;
+        return <Positions/>;
       case 'employees':
         return <Employees />;
       case 'reports':

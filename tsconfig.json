@@ -3,26 +3,41 @@
     "target": "ESNext",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "allowJs": true,
-    "resolveJsonModule": true,
+
+    // Ajuste para que o Vite/TS consigam ler imports absolutos
+    "baseUrl": "./",
+
+    // Se seu código fonte está dentro de "src"
     "rootDir": "./src",
     "outDir": "./dist",
+
     "jsx": "react-jsx",
     "strict": true,
-    "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+
+    // Permite "import x from 'react'"
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+
+    // Se você quiser ou não permitir "any" implícito
     "noImplicitAny": false,
+
+    // Mapeamentos de alias
     "paths": {
-      "@components/*": ["./src/components/*"],
-      "@data/*": ["./src/data/*"],
-      "@context/*": ["./src/context/*"],
-      "@config/*": ["./src/config/*"],
-      "@controllers/*": ["./src/controllers/*"],
-      "@routes/*": ["./src/routes/*"]
+      "@components/Positions.js": ["src/components/Positions.tsx"],
+      "@components/*": ["src/components/*"],
+      "@data/*": ["src/data/*"],
+      "@context/*": ["src/context/*"],
+      "@config/*": ["src/config/*"],
+      "@controllers/*": ["src/controllers/*"],
+      "@routes/*": ["src/routes/*"]
     }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

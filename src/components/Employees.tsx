@@ -1,4 +1,5 @@
 /* src/components/Employees.tsx */
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Edit2, Trash2, FileText } from 'lucide-react';
 import { Bar } from 'react-chartjs-2';
@@ -15,6 +16,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+
 import {
   fetchOrganizations,
   fetchEmployees,
@@ -114,14 +116,16 @@ function EditModal({
         status: 'Provido'
       };
       if (mode === 'addNew') {
+        // Verifica se cargo+símbolo já existe
         const exists = positions.find(
           (pos) =>
             pos.cargo_efetivo.trim().toLowerCase() ===
-              updated.cargo.cargo_efetivo.trim().toLowerCase() &&
+            updated.cargo.cargo_efetivo.trim().toLowerCase() &&
             pos.simbolo.trim().toLowerCase() ===
-              updated.cargo.simbolo.trim().toLowerCase()
+            updated.cargo.simbolo.trim().toLowerCase()
         );
         if (!exists) {
+          // Cria nova Position
           const maxNumero =
             positions.length > 0 ? Math.max(...positions.map((p) => p.numero)) : 0;
           const novoNumero = maxNumero + 1;
@@ -156,10 +160,11 @@ function EditModal({
           {mode === 'addNew'
             ? 'Adicionar Novo Servidor'
             : mode === 'addVacant'
-            ? 'Adicionar Servidor'
-            : 'Editar Servidor'}
+              ? 'Adicionar Servidor'
+              : 'Editar Servidor'}
         </h2>
         <div className="space-y-4">
+          {/* Nome Servidor */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Nome Servidor</label>
             <input
@@ -177,6 +182,7 @@ function EditModal({
               }
             />
           </div>
+          {/* Cargo Genérico */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Cargo Genérico</label>
             {mode === 'addNew' ? (
@@ -226,6 +232,7 @@ function EditModal({
               </select>
             )}
           </div>
+          {/* Símbolo */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Símbolo</label>
             {mode === 'addNew' ? (
@@ -269,6 +276,7 @@ function EditModal({
               </select>
             )}
           </div>
+          {/* Redistribuição */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Redistribuição</label>
             <select
@@ -289,6 +297,7 @@ function EditModal({
               ))}
             </select>
           </div>
+          {/* Data de Publicação */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Data de Publicação</label>
             <input
@@ -303,6 +312,7 @@ function EditModal({
               }
             />
           </div>
+          {/* Valor C.C. */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Valor C.C.</label>
             {(mode === 'addNew' || mode === 'edit') ? (
@@ -326,6 +336,7 @@ function EditModal({
               />
             )}
           </div>
+          {/* Status */}
           {mode === 'edit' ? (
             <div>
               <label className="block text-sm font-medium text-gray-700">Status</label>
@@ -364,6 +375,8 @@ function EditModal({
             )
           )}
         </div>
+
+        {/* Botões */}
         <div className="mt-6 flex justify-end space-x-3">
           <button
             className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50 transition-colors"
@@ -400,9 +413,14 @@ export function Employees() {
       const poss = await fetchPositions();
       setOrganizations(orgs);
       setPositions(poss);
+
       const transformed = emps.map(transformEmployee);
       transformed.sort((a, b) => a.ordem - b.ordem);
       setEmployeesData(transformed);
+      // Em vez de transformar, use "emps" como antes.
+      emps.sort((a: any, b: any) => (a.ordem || 0) - (b.ordem || 0));
+      setEmployeesData(emps);
+
     } catch (error) {
       console.error('Erro ao carregar os dados', error);
     }
@@ -617,7 +635,7 @@ export function Employees() {
   const acoesTemplate = (emp: Employee) => {
     if (emp.status === 'Provido') {
       return (
-        <div className="flex justify-center space-x-2">
+        <div className="flex gap-2">
           <button
             onClick={() => setEditingEmployee(emp)}
             title="Editar"
@@ -636,7 +654,7 @@ export function Employees() {
       );
     }
     return (
-      <div className="flex justify-center">
+      <div>
         <button
           onClick={() => setEditingEmployee(emp)}
           className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition-colors"
@@ -651,6 +669,7 @@ export function Employees() {
     const doc = new jsPDF('l', 'pt', 'a4');
     doc.setFontSize(12);
     doc.text(`Relatório de Servidores - ${selectedOrganizationFullName}`, 40, 40);
+
     const columns = [
       { header: '#', dataKey: 'numero' },
       { header: 'Cargo', dataKey: 'cargo' },
@@ -661,6 +680,7 @@ export function Employees() {
       { header: 'Publicação', dataKey: 'publicacao' },
       { header: 'Valor C.C.', dataKey: 'valorCC' }
     ];
+
     const rows = filteredRows.map((emp, index) => ({
       numero: index + 1,
       cargo: emp.cargo.cargo_efetivo,
@@ -674,6 +694,7 @@ export function Employees() {
           ? `R$ ${emp.valorCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
           : '-'
     }));
+
     doc.autoTable({
       columns,
       body: rows,
@@ -691,15 +712,21 @@ export function Employees() {
 
   return (
     <div className="p-6">
+      {/* Força table-layout: fixed, mas sem textAlign center global */}
       <style>
         {`
-          .p-datatable .p-datatable-thead > tr > th,
-          .p-datatable .p-datatable-tbody > tr > td {
-            vertical-align: middle !important;
+          .p-datatable-scrollable-header-table,
+          .p-datatable-scrollable-body-table {
+            table-layout: fixed !important;
           }
         `}
       </style>
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Gerenciamento de Servidores</h1>
+
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
+        Gerenciamento de Servidores
+      </h1>
+
+      {/* Filtros */}
       <div className="flex flex-col md:flex-row flex-wrap items-center justify-center gap-4 mb-4">
         <div className="flex items-center space-x-2">
           <label className="font-medium">Selecione o Órgão:</label>
@@ -766,6 +793,8 @@ export function Employees() {
           <span>PDF</span>
         </button>
       </div>
+
+      {/* Nome do órgão selecionado */}
       {selectedOrgan && selectedOrganizationFullName && (
         <div className="flex justify-center mb-4">
           <div className="bg-indigo-100 text-indigo-800 px-4 py-2 rounded-md">
@@ -773,6 +802,8 @@ export function Employees() {
           </div>
         </div>
       )}
+
+      {/* Tabela sem text-align center nas colunas */}
       <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
         <DataTable
           value={filteredRows}
@@ -780,112 +811,99 @@ export function Employees() {
           reorderableRows
           onRowReorder={handleRowReorder}
           scrollable
-          responsiveLayout="scroll"
-          rowClassName={rowClassName}
+          tableStyle={{ minWidth: '900px', tableLayout: 'fixed' }}
           className="p-datatable-gridlines p-datatable-striped p-datatable-sm"
-          tableStyle={{ minWidth: '50rem' }}
+          rowClassName={rowClassName}
           paginator
           rows={10}
           rowsPerPageOptions={[10, 25, 50, 100, filteredRows.length]}
         >
+          {/* Alça de arraste */}
+          <Column
+            rowReorder
+            /* Sem textAlign center: deixamos sem definir, ou textAlign left */
+            headerStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            bodyStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            style={{ width: '50px' }}
+            body={(rowData, options) => (
+              <i className="pi pi-bars cursor-move" style={{ fontSize: '1rem' }} />
+            )}
+          />
+          {/* Índice # */}
           <Column
             header="#"
-            headerClassName="text-center"
-            bodyClassName="text-center"
-            className="text-center"
-            headerStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            style={{ width: '5rem' }}
-            body={(rowData, options) => (
-              <div className="flex items-center justify-center space-x-2">
-                <i className="pi pi-bars cursor-move" style={{ fontSize: '1rem' }}></i>
-                <span>{options.rowIndex + 1}</span>
-              </div>
-            )}
-            rowReorder
+            headerStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            bodyStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            style={{ width: '50px' }}
+            body={(rowData, options) => options.rowIndex + 1}
           />
+          {/* Cargo Genérico */}
           <Column
             field="cargo.cargo_efetivo"
             header="Cargo Genérico"
-            headerClassName="text-center"
-            bodyClassName="text-center"
-            className="text-center"
-            headerStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            style={{ minWidth: '10rem' }}
+            headerStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            bodyStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            style={{ width: '220px' }}
           />
+          {/* Símbolo */}
           <Column
             field="cargo.simbolo"
             header="Símbolo"
-            headerClassName="text-center"
-            bodyClassName="text-center"
-            className="text-center"
-            headerStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            style={{ minWidth: '6rem' }}
+            headerStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            bodyStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            style={{ width: '100px' }}
           />
+          {/* Nome Servidor */}
           <Column
             header="Nome Servidor"
             body={servidorTemplate}
-            headerClassName="text-center"
-            bodyClassName="text-center"
-            className="text-center"
-            headerStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            style={{ minWidth: '10rem' }}
+            headerStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            bodyStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            style={{ width: '200px' }}
           />
+          {/* Status */}
           <Column
             field="status"
             header="Status"
-            headerClassName="text-center"
-            bodyClassName="text-center"
-            className="text-center"
-            headerStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            style={{ minWidth: '6rem' }}
+            headerStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            bodyStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            style={{ width: '100px' }}
           />
+          {/* Redistribuição */}
           <Column
             field="redistribuicao"
             header="Redistribuição"
-            headerClassName="text-center"
-            bodyClassName="text-center"
-            className="text-center"
-            headerStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            style={{ minWidth: '7rem' }}
+            headerStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            bodyStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            style={{ width: '120px' }}
           />
+          {/* Publicação */}
           <Column
             header="Publicação"
             body={dataPublicacaoTemplate}
-            headerClassName="text-center"
-            bodyClassName="text-center"
-            className="text-center"
-            headerStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            style={{ minWidth: '6rem' }}
+            headerStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            bodyStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            style={{ width: '120px' }}
           />
+          {/* Valor C.C. */}
           <Column
             header="Valor C.C."
             body={valorTemplate}
-            headerClassName="text-center"
-            bodyClassName="text-center"
-            className="text-center"
-            headerStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            style={{ minWidth: '7rem' }}
+            headerStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            bodyStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            style={{ width: '130px' }}
           />
+          {/* Ações */}
           <Column
             header="Ações"
             body={acoesTemplate}
-            headerClassName="text-center"
-            bodyClassName="text-center"
-            className="text-center"
-            headerStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            bodyStyle={{ textAlign: 'center', verticalAlign: 'middle' }}
-            style={{ minWidth: '6rem' }}
+            headerStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            bodyStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
+            style={{ width: '120px' }}
           />
         </DataTable>
       </div>
+
       <div className="text-center py-4">
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
@@ -894,18 +912,23 @@ export function Employees() {
           Adicionar Novo
         </button>
       </div>
+
       <div className="mb-4 text-center">
         <p className="font-bold text-lg">
           Total Salarial: R${' '}
           {totalCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
         </p>
       </div>
+
       <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4 mb-8">
-        <h2 className="text-xl font-bold mb-4 text-gray-800 text-center">Distribuição de Cargos</h2>
+        <h2 className="text-xl font-bold mb-4 text-gray-800 text-center">
+          Distribuição de Cargos
+        </h2>
         <div style={{ position: 'relative', height: '300px' }}>
           <Bar data={chartData} options={chartOptions} />
         </div>
       </div>
+
       {editingEmployee && (
         <EditModal
           employee={editingEmployee}

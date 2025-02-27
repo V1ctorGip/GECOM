@@ -1,19 +1,56 @@
+// src/data/api.ts
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Mapeia os campos do Employee para o formato esperado pelo backend
-const mapEmployeeForServer = (employee) => ({
+// 1. Mapeia os campos do FRONT-END (Employee) para o BACKEND
+const mapEmployeeForServer = (employee: any) => ({
   servidor: employee.nomeServidor,
-  cargo_efetivo: employee.cargo.cargo_efetivo, // usamos o campo correto
+  cargo_efetivo: employee.cargo.cargo_efetivo, // do cargo aninhado
   simbolo: employee.cargo.simbolo,
   data_nomeacao: employee.dtPublicacao, // formato ISO (YYYY-MM-DD)
   salario: employee.valorCC,
-  redistribuicao: employee.redistribuicao && employee.redistribuicao.trim() !== '' 
-    ? employee.redistribuicao 
-    : 'Não',
+  redistribuicao:
+    employee.redistribuicao && employee.redistribuicao.trim() !== ''
+      ? employee.redistribuicao
+      : 'Não',
   status: employee.status,
   secretaria: employee.secretaria,
   ordem: employee.ordem,
 });
+
+// 2. FUNÇÃO DE TRANSFORMACAO: do BACKEND para o FRONT (Employee)
+function transformEmployee(dbRow: any) {
+  return {
+    id: String(dbRow.id),
+    nomeServidor: dbRow.servidor || '',
+
+    // "cargo" aninhado (Position) –> inclui os campos exigidos pelo seu type Position
+    cargo: {
+      id: '', // caso queira preencher com algo real depois
+      numero: 0, // idem
+      cargo_efetivo: dbRow.cargo_efetivo || '',
+      simbolo: dbRow.simbolo || '',
+      secretaria: dbRow.secretaria || '', // Para não dar erro no TS (Position tem 'secretaria')
+    },
+
+    status: dbRow.status === 'Provido' ? 'Provido' : 'Vago',
+    redistribuicao: dbRow.redistribuicao || 'Não',
+
+    // data_nomeacao vira dtPublicacao (YYYY-MM-DD)
+    dtPublicacao: dbRow.data_nomeacao
+      ? new Date(dbRow.data_nomeacao).toISOString().split('T')[0]
+      : '',
+
+    // salario vira valorCC
+    valorCC: Number(dbRow.salario) || 0,
+
+    // "secretaria" do próprio Employee (não confundir com cargo.secretaria)
+    secretaria: dbRow.secretaria || '',
+
+    ordem: dbRow.ordem || 0,
+  };
+}
+
+// ====================== FETCHES ======================
 
 export const fetchOrganizations = async () => {
   try {
@@ -30,7 +67,14 @@ export const fetchEmployees = async () => {
   try {
     const response = await fetch(`${API_URL}/employees`);
     if (!response.ok) throw new Error('Erro ao buscar funcionários');
-    return await response.json();
+
+    // 1) Ler JSON cru (dbRows)
+    const data = await response.json();
+
+    // 2) Transformar cada "dbRow" em um Employee coerente
+    const employees = data.map(transformEmployee);
+
+    return employees;
   } catch (error) {
     console.error('❌ Erro ao buscar funcionários:', error);
     return [];
@@ -59,7 +103,9 @@ export const fetchOrganizationGrowth = async () => {
   }
 };
 
-export const updateEmployee = async (employee) => {
+// ====================== CRUD EMPLOYEE ======================
+
+export const updateEmployee = async (employee: any) => {
   try {
     const payload = mapEmployeeForServer(employee);
     const response = await fetch(`${API_URL}/employees/${employee.id}`, {
@@ -75,7 +121,7 @@ export const updateEmployee = async (employee) => {
   }
 };
 
-export const deleteEmployee = async (employeeId) => {
+export const deleteEmployee = async (employeeId: string) => {
   try {
     const response = await fetch(`${API_URL}/employees/${employeeId}`, {
       method: 'DELETE',
@@ -88,7 +134,7 @@ export const deleteEmployee = async (employeeId) => {
   }
 };
 
-export const createEmployee = async (employee) => {
+export const createEmployee = async (employee: any) => {
   try {
     const payload = mapEmployeeForServer(employee);
     const response = await fetch(`${API_URL}/employees`, {
@@ -104,7 +150,7 @@ export const createEmployee = async (employee) => {
   }
 };
 
-export const updateEmployeePositions = async (employees) => {
+export const updateEmployeePositions = async (employees: any[]) => {
   try {
     const response = await fetch(`${API_URL}/employees/reorder`, {
       method: 'PUT',
@@ -119,7 +165,9 @@ export const updateEmployeePositions = async (employees) => {
   }
 };
 
-export const createPosition = async (position) => {
+// ====================== CRUD POSITION ======================
+
+export const createPosition = async (position: any) => {
   try {
     const response = await fetch(`${API_URL}/positions`, {
       method: 'POST',
