@@ -1,8 +1,8 @@
 /* src/components/Employees.tsx */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Edit2, Trash2, FileText } from 'lucide-react';
-import { Bar } from 'react-chartjs-2';
+// import { Bar } from 'react-chartjs-2'; // ← COMENTADO para não exibir o gráfico
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,6 +15,7 @@ import {
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable'; // para tipagem
 import 'jspdf-autotable';
 
 import {
@@ -116,13 +117,13 @@ function EditModal({
         status: 'Provido'
       };
       if (mode === 'addNew') {
-        // Verifica se cargo+símbolo já existe
+        // Verifica se cargo + símbolo já existe
         const exists = positions.find(
           (pos) =>
             pos.cargo_efetivo.trim().toLowerCase() ===
-            updated.cargo.cargo_efetivo.trim().toLowerCase() &&
+              updated.cargo.cargo_efetivo.trim().toLowerCase() &&
             pos.simbolo.trim().toLowerCase() ===
-            updated.cargo.simbolo.trim().toLowerCase()
+              updated.cargo.simbolo.trim().toLowerCase()
         );
         if (!exists) {
           // Cria nova Position
@@ -160,8 +161,8 @@ function EditModal({
           {mode === 'addNew'
             ? 'Adicionar Novo Servidor'
             : mode === 'addVacant'
-              ? 'Adicionar Servidor'
-              : 'Editar Servidor'}
+            ? 'Adicionar Servidor'
+            : 'Editar Servidor'}
         </h2>
         <div className="space-y-4">
           {/* Nome Servidor */}
@@ -400,24 +401,47 @@ export function Employees() {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [employeesData, setEmployeesData] = useState<Employee[]>([]);
-  const [selectedOrgan, setSelectedOrgan] = useState<string>('');
-  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
-  const [cargoFilter, setCargoFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [symbolFilter, setSymbolFilter] = useState('');
 
+  // ======= Estados para os 3 "Multi-Select + Busca" (Órgão, Cargo, Símbolo) =======
+  const [orgSearch, setOrgSearch] = useState('');
+  const [orgDropdownOpen, setOrgDropdownOpen] = useState(false);
+  const [selectedOrgs, setSelectedOrgs] = useState<string[]>([]);
+
+  const [cargoSearch, setCargoSearch] = useState('');
+  const [cargoDropdownOpen, setCargoDropdownOpen] = useState(false);
+  const [selectedCargos, setSelectedCargos] = useState<string[]>([]);
+
+  const [symbolSearch, setSymbolSearch] = useState('');
+  const [symbolDropdownOpen, setSymbolDropdownOpen] = useState(false);
+  const [selectedSymbols, setSelectedSymbols] = useState<string[]>([]);
+
+  // ======= Filtro de Status (simples) =======
+  const [statusFilter, setStatusFilter] = useState('');
+
+  // ======= Estado de edição (modal) =======
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+
+  // ======= Refs para cada dropdown, para fechar ao clicar fora =======
+  const orgRef = useRef<HTMLDivElement>(null);
+  const cargoRef = useRef<HTMLDivElement>(null);
+  const symbolRef = useRef<HTMLDivElement>(null);
+
+  // ======= Carrega dados iniciais =======
   const loadData = async () => {
     try {
       const orgs = await fetchOrganizations();
       const emps = await fetchEmployees();
       const poss = await fetchPositions();
+
       setOrganizations(orgs);
       setPositions(poss);
 
+      // Aplica transform e ordena
       const transformed = emps.map(transformEmployee);
       transformed.sort((a, b) => a.ordem - b.ordem);
       setEmployeesData(transformed);
-      // Em vez de transformar, use "emps" como antes.
+
+      // Ordenação no array original
       emps.sort((a: any, b: any) => (a.ordem || 0) - (b.ordem || 0));
       setEmployeesData(emps);
 
@@ -430,114 +454,163 @@ export function Employees() {
     loadData();
   }, []);
 
+  // ======= Fechar dropdowns ao clicar fora =======
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (orgRef.current && !orgRef.current.contains(event.target as Node)) {
+        setOrgDropdownOpen(false);
+      }
+      if (cargoRef.current && !cargoRef.current.contains(event.target as Node)) {
+        setCargoDropdownOpen(false);
+      }
+      if (symbolRef.current && !symbolRef.current.contains(event.target as Node)) {
+        setSymbolDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // ======= Se não selecionar nada, pega o primeiro órgão por padrão =======
+  useEffect(() => {
+    if (organizations.length > 0 && selectedOrgs.length === 0) {
+      const firstOrg = organizations[0];
+      if (firstOrg) {
+        setSelectedOrgs([firstOrg.sigla]);
+      }
+    }
+  }, [organizations, selectedOrgs]);
+
+  // ======= Lista de órgãos disponíveis (que aparecem nos employeesData) =======
   const availableOrganizations = useMemo(() => {
     return organizations.filter((org) =>
       employeesData.some((emp) => emp.secretaria === org.sigla)
     );
   }, [organizations, employeesData]);
 
-  useEffect(() => {
-    if (availableOrganizations.length > 0) {
-      const stillExists = availableOrganizations.find((org) => org.sigla === selectedOrgan);
-      if (!stillExists) {
-        setSelectedOrgan(availableOrganizations[0].sigla);
-      }
-    } else {
-      setSelectedOrgan('');
+  // ======= Filtro interno de órgão pela busca orgSearch =======
+  const filteredOrgOptions = useMemo(() => {
+    return availableOrganizations.filter((org) => {
+      const texto = `${org.sigla} ${org.secretaria}`.toLowerCase();
+      return texto.includes(orgSearch.toLowerCase());
+    });
+  }, [availableOrganizations, orgSearch]);
+
+  // ======= Filtrar employeesData por orgs selecionadas, para descobrir cargos/símbolos =======
+  const allRowsFromSelectedOrgs = useMemo(() => {
+    // Se selectedOrgs estiver vazio => consideramos sem órgãos => result = []
+    if (selectedOrgs.length === 0) {
+      return [];
     }
-  }, [availableOrganizations, selectedOrgan]);
+    return employeesData.filter((emp) => selectedOrgs.includes(emp.secretaria));
+  }, [employeesData, selectedOrgs]);
 
-  const organizationRows = useMemo(() => {
-    const filtered = employeesData.filter((emp) => emp.secretaria === selectedOrgan);
-    return filtered.sort((a, b) => a.ordem - b.ordem);
-  }, [employeesData, selectedOrgan]);
-
+  // ======= Opções de cargo e símbolo (somente das orgs selecionadas) =======
   const cargoOptions = useMemo(() => {
-    const setCargos = new Set(organizationRows.map((emp) => emp.cargo.cargo_efetivo));
+    const setCargos = new Set(
+      allRowsFromSelectedOrgs.map((emp) => emp.cargo.cargo_efetivo)
+    );
     return Array.from(setCargos).sort();
-  }, [organizationRows]);
+  }, [allRowsFromSelectedOrgs]);
 
   const symbolOptions = useMemo(() => {
-    const setSymbols = new Set(organizationRows.map((emp) => emp.cargo.simbolo));
+    const setSymbols = new Set(
+      allRowsFromSelectedOrgs.map((emp) => emp.cargo.simbolo)
+    );
     return Array.from(setSymbols).sort();
-  }, [organizationRows]);
+  }, [allRowsFromSelectedOrgs]);
 
+  // ======= Filtrar cargos e símbolos pela busca =======
+  const filteredCargoOptions = useMemo(() => {
+    return cargoOptions.filter((cargo) =>
+      cargo.toLowerCase().includes(cargoSearch.toLowerCase())
+    );
+  }, [cargoOptions, cargoSearch]);
+
+  const filteredSymbolOptions = useMemo(() => {
+    return symbolOptions.filter((symbol) =>
+      symbol.toLowerCase().includes(symbolSearch.toLowerCase())
+    );
+  }, [symbolOptions, symbolSearch]);
+
+  // ======= Exibir texto resumido no botão do multi-select =======
+  function getMultiSelectDisplayText(selectedList: string[]): string {
+    if (selectedList.length === 0) return 'Nenhum';
+    if (selectedList.length <= 2) return selectedList.join(', ');
+    const firstTwo = selectedList.slice(0, 2).join(', ');
+    return firstTwo + '...';
+  }
+
+  // ======= Filtragem final para a DataTable =======
   const filteredRows = useMemo(() => {
-    return organizationRows.filter((emp) => {
-      if (cargoFilter && !emp.cargo.cargo_efetivo.toLowerCase().includes(cargoFilter.toLowerCase())) {
+    // Se selectedOrgs está vazio => sem órgãos => array vazio
+    if (selectedOrgs.length === 0) {
+      return [];
+    }
+    return employeesData.filter((emp) => {
+      // 1) Órgãos
+      if (!selectedOrgs.includes(emp.secretaria)) {
         return false;
       }
+      // 2) Cargo
+      if (selectedCargos.length > 0 && !selectedCargos.includes(emp.cargo.cargo_efetivo)) {
+        return false;
+      }
+      // 3) Símbolo
+      if (selectedSymbols.length > 0 && !selectedSymbols.includes(emp.cargo.simbolo)) {
+        return false;
+      }
+      // 4) Status
       if (statusFilter && emp.status !== statusFilter) {
-        return false;
-      }
-      if (symbolFilter && !emp.cargo.simbolo.toLowerCase().includes(symbolFilter.toLowerCase())) {
         return false;
       }
       return true;
     });
-  }, [organizationRows, cargoFilter, statusFilter, symbolFilter]);
+  }, [employeesData, selectedOrgs, selectedCargos, selectedSymbols, statusFilter]);
 
-  const totalCC = useMemo(() => {
+  // ======= Cálculos de rodapé =======
+  const totalProvido = useMemo(() => {
     return filteredRows
       .filter((emp) => emp.status === 'Provido')
       .reduce((sum, emp) => sum + (emp.valorCC || 0), 0);
   }, [filteredRows]);
 
-  const chartData = useMemo(() => {
-    const providoCount = filteredRows.filter((emp) => emp.status === 'Provido').length;
-    const vagoCount = filteredRows.filter((emp) => emp.status === 'Vago').length;
-    return {
-      labels: ['Provido', 'Vago'],
-      datasets: [
-        {
-          label: 'Cargos',
-          data: [providoCount, vagoCount],
-          backgroundColor: ['rgba(59, 130, 246, 0.2)', 'rgba(16, 185, 129, 0.2)'],
-          borderColor: ['rgba(59, 130, 246, 1)', 'rgba(16, 185, 129, 1)'],
-          borderWidth: 2,
-          borderRadius: 5
-        }
-      ]
-    };
+  const totalVago = useMemo(() => {
+    return filteredRows
+      .filter((emp) => emp.status === 'Vago')
+      .reduce((sum, emp) => sum + (emp.valorCC || 0), 0);
   }, [filteredRows]);
 
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        labels: {
-          color: '#1F2937'
-        }
-      },
-      tooltip: {
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        titleColor: '#111827',
-        bodyColor: '#111827',
-        borderColor: '#D1D5DB',
-        borderWidth: 1
-      }
-    },
-    scales: {
-      x: {
-        ticks: {
-          color: '#374151'
-        },
-        grid: {
-          color: '#E5E7EB'
-        }
-      },
-      y: {
-        ticks: {
-          color: '#374151'
-        },
-        grid: {
-          color: '#E5E7EB'
-        }
-      }
-    }
-  };
+  const totalGeral = totalProvido + totalVago;
 
+  const qtdProvidos = useMemo(() => {
+    return filteredRows.filter((emp) => emp.status === 'Provido').length;
+  }, [filteredRows]);
+
+  const qtdVagos = useMemo(() => {
+    return filteredRows.filter((emp) => emp.status === 'Vago').length;
+  }, [filteredRows]);
+
+  // ======= Descobrir quais órgãos aparecem no resultado filtrado =======
+  const orgsInFilteredData = useMemo(() => {
+    const siglasSet = new Set(filteredRows.map((emp) => emp.secretaria));
+    return organizations.filter((org) => siglasSet.has(org.sigla));
+  }, [filteredRows, organizations]);
+
+  // ======= Exibir mini-card com nome do(s) órgão(s) =======
+  const orgDisplayText = useMemo(() => {
+    if (orgsInFilteredData.length === 0) return '';
+    if (orgsInFilteredData.length === 1) {
+      const o = orgsInFilteredData[0];
+      return `${o.secretaria} (${o.sigla})`;
+    } else {
+      return orgsInFilteredData.map((o) => o.sigla).join(', ');
+    }
+  }, [orgsInFilteredData]);
+
+  // ======= CRUD =======
   const handleSaveEmployee = async (updatedEmployee: Employee) => {
     if (updatedEmployee.id === 'new') {
       try {
@@ -567,7 +640,10 @@ export function Employees() {
     }
   };
 
+  // ======= Botão Adicionar Novo (usa o primeiro órgão selecionado) =======
   const handleAddNew = () => {
+    // Se não houver nenhum órgão selecionado, fica vazio
+    const defaultOrg = selectedOrgs.length > 0 ? selectedOrgs[0] : '';
     const newEmployee: Employee = {
       id: 'new',
       nomeServidor: '',
@@ -576,32 +652,39 @@ export function Employees() {
         cargo_efetivo: '',
         numero: 0,
         simbolo: '',
-        secretaria: selectedOrgan
+        secretaria: defaultOrg
       },
       status: 'Vago',
       redistribuicao: '',
       dtPublicacao: '',
       valorCC: 0,
-      secretaria: selectedOrgan,
-      ordem: organizationRows.length + 1
+      secretaria: defaultOrg,
+      ordem: employeesData.length + 1
     };
     setEditingEmployee(newEmployee);
   };
 
+  // ======= Reordenar linhas (idêntico ao código antigo, mas multi) =======
   const handleRowReorder = async (e: RowReorderEvent) => {
     const reordered = e.value;
+    // Atualiza a propriedade ordem em cada linha
     const updatedOrgRows = reordered.map((emp, index) => ({
       ...emp,
       ordem: index + 1
     }));
-    const newEmployeesData = employeesData.map((emp) => {
-      if (emp.secretaria === selectedOrgan) {
-        const updatedEmp = updatedOrgRows.find((it) => it.id === emp.id);
-        return updatedEmp || emp;
+
+    // Substitui no array principal
+    const newEmployeesData = [...employeesData];
+    updatedOrgRows.forEach((upd) => {
+      const idx = newEmployeesData.findIndex((x) => x.id === upd.id);
+      if (idx !== -1) {
+        newEmployeesData[idx] = upd;
       }
-      return emp;
     });
+
     setEmployeesData(newEmployeesData);
+
+    // Persiste no backend
     try {
       await updateEmployeePositions(updatedOrgRows);
     } catch (error) {
@@ -609,11 +692,82 @@ export function Employees() {
     }
   };
 
-  const selectedOrganizationFullName = useMemo(() => {
-    const org = organizations.find((o) => o.sigla === selectedOrgan);
-    return org ? org.secretaria : '';
-  }, [organizations, selectedOrgan]);
+  // ======= PDF (com divisão por órgão e salário alinhado) =======
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF('l', 'pt', 'a4');
+    doc.setFontSize(12);
 
+    // Agrupa as linhas filtradas por órgão
+    const grouped: Record<string, Employee[]> = {};
+    for (const emp of filteredRows) {
+      if (!grouped[emp.secretaria]) {
+        grouped[emp.secretaria] = [];
+      }
+      grouped[emp.secretaria].push(emp);
+    }
+
+    const orgSiglas = Object.keys(grouped).sort();
+    let currentY = 40;
+
+    for (const sigla of orgSiglas) {
+      const org = organizations.find((o) => o.sigla === sigla);
+      let orgTitle = sigla;
+      if (org) {
+        orgTitle = `${org.secretaria} (${org.sigla})`;
+      }
+
+      doc.text(`Relatório de Servidores - ${orgTitle}`, 40, currentY);
+
+      const orgRows = grouped[sigla].map((emp, index) => ({
+        numero: index + 1,
+        cargo: emp.cargo.cargo_efetivo,
+        simbolo: emp.cargo.simbolo,
+        servidor: emp.status === 'Provido' ? emp.nomeServidor : 'Vago',
+        status: emp.status,
+        redistribuicao: emp.redistribuicao || '',
+        publicacao: emp.dtPublicacao ? formatDateToBR(emp.dtPublicacao) : '-',
+        valorCC: `R$\u00A0${emp.valorCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+      }));
+
+      const columns = [
+        { header: '#', dataKey: 'numero' },
+        { header: 'Cargo', dataKey: 'cargo' },
+        { header: 'Símbolo', dataKey: 'simbolo' },
+        { header: 'Servidor', dataKey: 'servidor' },
+        { header: 'Status', dataKey: 'status' },
+        { header: 'Redistribuição', dataKey: 'redistribuicao' },
+        { header: 'Publicação', dataKey: 'publicacao' },
+        { header: 'Valor C.C.', dataKey: 'valorCC' }
+      ];
+
+      (doc as any).autoTable({
+        startY: currentY + 20,
+        head: [columns.map((col) => col.header)],
+        body: orgRows.map((r) => columns.map((col) => r[col.dataKey])),
+        styles: {
+          fontSize: 10,
+          cellPadding: 4,
+          valign: 'middle'
+        },
+        headStyles: {
+          fillColor: [41, 128, 185],
+          valign: 'middle',
+          textColor: 255
+        },
+        columnStyles: {
+          7: { halign: 'right' }
+        },
+        margin: { left: 40, right: 40 }
+      });
+
+      const finalY = (doc as any).lastAutoTable.finalY;
+      currentY = finalY + 30;
+    }
+
+    doc.save('Relatorio-Servidores.pdf');
+  };
+
+  // ======= Templates =======
   const servidorTemplate = (emp: Employee) => {
     if (emp.status === 'Provido') {
       return emp.nomeServidor;
@@ -665,47 +819,6 @@ export function Employees() {
     );
   };
 
-  const handleDownloadPDF = () => {
-    const doc = new jsPDF('l', 'pt', 'a4');
-    doc.setFontSize(12);
-    doc.text(`Relatório de Servidores - ${selectedOrganizationFullName}`, 40, 40);
-
-    const columns = [
-      { header: '#', dataKey: 'numero' },
-      { header: 'Cargo', dataKey: 'cargo' },
-      { header: 'Símbolo', dataKey: 'simbolo' },
-      { header: 'Servidor', dataKey: 'servidor' },
-      { header: 'Status', dataKey: 'status' },
-      { header: 'Redistribuição', dataKey: 'redistribuicao' },
-      { header: 'Publicação', dataKey: 'publicacao' },
-      { header: 'Valor C.C.', dataKey: 'valorCC' }
-    ];
-
-    const rows = filteredRows.map((emp, index) => ({
-      numero: index + 1,
-      cargo: emp.cargo.cargo_efetivo,
-      simbolo: emp.cargo.simbolo,
-      servidor: emp.status === 'Provido' ? emp.nomeServidor : 'Vago',
-      status: emp.status,
-      redistribuicao: emp.redistribuicao || '',
-      publicacao: emp.dtPublicacao ? formatDateToBR(emp.dtPublicacao) : '-',
-      valorCC:
-        emp.status === 'Provido'
-          ? `R$ ${emp.valorCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-          : '-'
-    }));
-
-    doc.autoTable({
-      columns,
-      body: rows,
-      startY: 60,
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [41, 128, 185] },
-      margin: { left: 40, right: 40 }
-    });
-    doc.save(`Relatorio-${selectedOrganizationFullName}.pdf`);
-  };
-
   const rowClassName = (emp: Employee) => {
     return emp.status === 'Vago' ? 'bg-green-50' : '';
   };
@@ -726,41 +839,123 @@ export function Employees() {
         Gerenciamento de Servidores
       </h1>
 
-      {/* Filtros */}
-      <div className="flex flex-col md:flex-row flex-wrap items-center justify-center gap-4 mb-4">
-        <div className="flex items-center space-x-2">
-          <label className="font-medium">Selecione o Órgão:</label>
-          <select
-            className="p-2 border rounded-lg"
-            value={selectedOrgan}
-            onChange={(e) => setSelectedOrgan(e.target.value)}
-          >
-            {availableOrganizations.map((org) => (
-              <option key={org.codigo} value={org.sigla}>
-                {org.secretaria} ({org.sigla})
-              </option>
-            ))}
-          </select>
+      {/* Mini-card do(s) órgão(s), só se houver linhas */}
+      {orgDisplayText && filteredRows.length > 0 && (
+        <div className="flex justify-center mb-4">
+          <div className="bg-indigo-100 text-indigo-800 px-4 py-2 rounded-md">
+            <span className="font-bold text-lg">{orgDisplayText}</span>
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <label className="font-medium">Cargo:</label>
-          <select
-            className="p-2 border rounded-lg"
-            value={cargoFilter}
-            onChange={(e) => setCargoFilter(e.target.value)}
+      )}
+
+      {/* Filtros principais */}
+      <div className="flex flex-col md:flex-row flex-wrap items-start justify-center gap-4 mb-4">
+
+        {/* MULTI-SELECT de Órgão */}
+        <div className="relative" ref={orgRef}>
+          <label className="font-medium block mb-1">Órgão:</label>
+          <button
+            type="button"
+            className="p-2 border rounded-lg min-w-[200px] text-left bg-white flex items-center justify-between"
+            onClick={() => setOrgDropdownOpen((prev) => !prev)}
           >
-            <option value="">Todos</option>
-            {cargoOptions.map((cargo) => (
-              <option key={cargo} value={cargo}>
-                {cargo}
-              </option>
-            ))}
-          </select>
+            <span>{getMultiSelectDisplayText(selectedOrgs)}</span>
+            <span className="ml-2">▼</span>
+          </button>
+          {orgDropdownOpen && (
+            <div className="absolute z-10 bg-white border shadow-md p-2 mt-1 w-full max-w-[250px]">
+              <input
+                type="text"
+                className="p-2 border rounded w-full mb-2"
+                placeholder="Pesquisar órgão..."
+                value={orgSearch}
+                onChange={(e) => setOrgSearch(e.target.value)}
+              />
+              <div className="max-h-60 overflow-auto">
+                {filteredOrgOptions.map((org) => {
+                  const checked = selectedOrgs.includes(org.sigla);
+                  return (
+                    <label
+                      key={org.sigla}
+                      className="flex items-center space-x-2 mb-1"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedOrgs((prev) => [...prev, org.sigla]);
+                          } else {
+                            setSelectedOrgs((prev) =>
+                              prev.filter((o) => o !== org.sigla)
+                            );
+                          }
+                        }}
+                      />
+                      <span>{org.secretaria} ({org.sigla})</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
-        <div className="flex items-center space-x-2">
-          <label className="font-medium">Status:</label>
+
+        {/* MULTI-SELECT de Cargo */}
+        <div className="relative" ref={cargoRef}>
+          <label className="font-medium block mb-1">Cargo:</label>
+          <button
+            type="button"
+            className="p-2 border rounded-lg min-w-[200px] text-left bg-white flex items-center justify-between"
+            onClick={() => setCargoDropdownOpen((prev) => !prev)}
+          >
+            <span>{getMultiSelectDisplayText(selectedCargos)}</span>
+            <span className="ml-2">▼</span>
+          </button>
+          {cargoDropdownOpen && (
+            <div className="absolute z-10 bg-white border shadow-md p-2 mt-1 w-full max-w-[250px]">
+              <input
+                type="text"
+                className="p-2 border rounded w-full mb-2"
+                placeholder="Pesquisar cargo..."
+                value={cargoSearch}
+                onChange={(e) => setCargoSearch(e.target.value)}
+              />
+              <div className="max-h-60 overflow-auto">
+                {filteredCargoOptions.map((cargo) => {
+                  const checked = selectedCargos.includes(cargo);
+                  return (
+                    <label
+                      key={cargo}
+                      className="flex items-center space-x-2 mb-1"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(ev) => {
+                          if (ev.target.checked) {
+                            setSelectedCargos((prev) => [...prev, cargo]);
+                          } else {
+                            setSelectedCargos((prev) =>
+                              prev.filter((c) => c !== cargo)
+                            );
+                          }
+                        }}
+                      />
+                      <span>{cargo}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Filtro de Status (simples) */}
+        <div className="flex flex-col">
+          <label className="font-medium mb-1">Status:</label>
           <select
-            className="p-2 border rounded-lg"
+            className="p-2 border rounded-lg bg-white"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -769,41 +964,71 @@ export function Employees() {
             <option value="Vago">Vago</option>
           </select>
         </div>
-        <div className="flex items-center space-x-2">
-          <label className="font-medium">Símbolo:</label>
-          <select
-            className="p-2 border rounded-lg"
-            value={symbolFilter}
-            onChange={(e) => setSymbolFilter(e.target.value)}
+
+        {/* MULTI-SELECT de Símbolo */}
+        <div className="relative" ref={symbolRef}>
+          <label className="font-medium block mb-1">Símbolo:</label>
+          <button
+            type="button"
+            className="p-2 border rounded-lg min-w-[200px] text-left bg-white flex items-center justify-between"
+            onClick={() => setSymbolDropdownOpen((prev) => !prev)}
           >
-            <option value="">Todos</option>
-            {symbolOptions.map((symbol) => (
-              <option key={symbol} value={symbol}>
-                {symbol}
-              </option>
-            ))}
-          </select>
+            <span>{getMultiSelectDisplayText(selectedSymbols)}</span>
+            <span className="ml-2">▼</span>
+          </button>
+          {symbolDropdownOpen && (
+            <div className="absolute z-10 bg-white border shadow-md p-2 mt-1 w-full max-w-[250px]">
+              <input
+                type="text"
+                className="p-2 border rounded w-full mb-2"
+                placeholder="Pesquisar símbolo..."
+                value={symbolSearch}
+                onChange={(e) => setSymbolSearch(e.target.value)}
+              />
+              <div className="max-h-60 overflow-auto">
+                {filteredSymbolOptions.map((symbol) => {
+                  const checked = selectedSymbols.includes(symbol);
+                  return (
+                    <label
+                      key={symbol}
+                      className="flex items-center space-x-2 mb-1"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(ev) => {
+                          if (ev.target.checked) {
+                            setSelectedSymbols((prev) => [...prev, symbol]);
+                          } else {
+                            setSelectedSymbols((prev) =>
+                              prev.filter((s) => s !== symbol)
+                            );
+                          }
+                        }}
+                      />
+                      <span>{symbol}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
-        <button
-          onClick={handleDownloadPDF}
-          className="flex items-center space-x-2 px-3 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
-          title="Baixar PDF da tabela atual"
-        >
-          <FileText size={18} />
-          <span>PDF</span>
-        </button>
+
+        {/* Botão PDF */}
+        <div className="flex flex-col justify-end">
+          <button
+            onClick={handleDownloadPDF}
+            className="flex items-center space-x-2 px-3 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
+            title="Baixar PDF da tabela atual"
+          >
+            <FileText size={18} />
+            <span>PDF</span>
+          </button>
+        </div>
       </div>
 
-      {/* Nome do órgão selecionado */}
-      {selectedOrgan && selectedOrganizationFullName && (
-        <div className="flex justify-center mb-4">
-          <div className="bg-indigo-100 text-indigo-800 px-4 py-2 rounded-md">
-            <span className="font-bold text-lg">{selectedOrganizationFullName}</span>
-          </div>
-        </div>
-      )}
-
-      {/* Tabela sem text-align center nas colunas */}
+      {/* Tabela com emptyMessage se não houver dados */}
       <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
         <DataTable
           value={filteredRows}
@@ -817,11 +1042,11 @@ export function Employees() {
           paginator
           rows={10}
           rowsPerPageOptions={[10, 25, 50, 100, filteredRows.length]}
+          emptyMessage="Nenhum dado encontrado. Selecione ao menos um órgão ou ajuste seus filtros."
         >
           {/* Alça de arraste */}
           <Column
             rowReorder
-            /* Sem textAlign center: deixamos sem definir, ou textAlign left */
             headerStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
             bodyStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
             style={{ width: '50px' }}
@@ -904,6 +1129,7 @@ export function Employees() {
         </DataTable>
       </div>
 
+      {/* Botão Adicionar Novo */}
       <div className="text-center py-4">
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
@@ -913,13 +1139,51 @@ export function Employees() {
         </button>
       </div>
 
-      <div className="mb-4 text-center">
-        <p className="font-bold text-lg">
-          Total Salarial: R${' '}
-          {totalCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-        </p>
+      {/* MINI-CARDS de estatísticas */}
+      <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-4 flex-wrap">
+        <div className="bg-blue-600 text-white rounded-md p-4 shadow-md">
+          <p className="font-bold">Custo Providos</p>
+          <p className="text-lg">
+            R${' '}
+            {totalProvido.toLocaleString('pt-BR', {
+              minimumFractionDigits: 2
+            })}
+          </p>
+        </div>
+
+        <div className="bg-green-600 text-white rounded-md p-4 shadow-md">
+          <p className="font-bold">Custo Vagos</p>
+          <p className="text-lg">
+            R${' '}
+            {totalVago.toLocaleString('pt-BR', {
+              minimumFractionDigits: 2
+            })}
+          </p>
+        </div>
+
+        <div className="bg-yellow-600 text-white rounded-md p-4 shadow-md">
+          <p className="font-bold">Qtd. Providos</p>
+          <p className="text-lg">{qtdProvidos}</p>
+        </div>
+
+        <div className="bg-red-600 text-white rounded-md p-4 shadow-md">
+          <p className="font-bold">Qtd. Vagos</p>
+          <p className="text-lg">{qtdVagos}</p>
+        </div>
+
+        <div className="bg-indigo-600 text-white rounded-md p-4 shadow-md">
+          <p className="font-bold">Total Salarial</p>
+          <p className="text-lg">
+            R${' '}
+            {totalGeral.toLocaleString('pt-BR', {
+              minimumFractionDigits: 2
+            })}
+          </p>
+        </div>
       </div>
 
+      {/* (Gráfico comentado) */}
+      {/*
       <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4 mb-8">
         <h2 className="text-xl font-bold mb-4 text-gray-800 text-center">
           Distribuição de Cargos
@@ -928,6 +1192,7 @@ export function Employees() {
           <Bar data={chartData} options={chartOptions} />
         </div>
       </div>
+      */}
 
       {editingEmployee && (
         <EditModal
