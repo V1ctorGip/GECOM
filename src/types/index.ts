@@ -10,7 +10,8 @@ export type Position = {
   numero: number;
   cargo_efetivo: string;  // agora usando o nome do campo conforme o DB
   simbolo: string;
-  secretaria: string;      // para filtrar os cargos da secretaria específica
+  secretaria: string; 
+  salario?: number;     // para filtrar os cargos da secretaria específica
 };
 
 export interface Employee {
