@@ -322,10 +322,10 @@ function EditModal({
       nomeServidor: editedEmployee.nomeServidor.toUpperCase()
     };
 
+    // [ALTERAÇÃO #1] - Verificação global (removemos "e.secretaria === ...").
     const conflictEmp = allEmployees.find(
       (e) =>
         e.nomeServidor.trim().toLowerCase() === normalized.nomeServidor.trim().toLowerCase() &&
-        e.secretaria === normalized.secretaria &&
         e.id !== normalized.id
     );
     if (conflictEmp) {
@@ -390,8 +390,9 @@ function EditModal({
               <label className="block text-sm font-medium text-gray-700">Nome Servidor</label>
               <input
                 type="text"
-                className={`mt-1 block w-full rounded-md border p-2 focus:ring focus:ring-blue-500 ${errors.nomeServidor ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`mt-1 block w-full rounded-md border p-2 focus:ring focus:ring-blue-500 ${
+                  errors.nomeServidor ? 'border-red-500' : 'border-gray-300'
+                }`}
                 value={editedEmployee.nomeServidor.toUpperCase()}
                 onChange={(e) =>
                   setEditedEmployee({
@@ -419,8 +420,9 @@ function EditModal({
                             setCargoDropdownOpen((prev) => !prev);
                             setSymbolDropdownOpen(false);
                           }}
-                          className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${errors.cargo ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                          className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${
+                            errors.cargo ? 'border-red-500' : 'border-gray-300'
+                          }`}
                         >
                           <span>
                             {editedEmployee.cargo.cargo_efetivo || 'Selecione um cargo...'}
@@ -466,8 +468,9 @@ function EditModal({
                     ) : (
                       <input
                         type="text"
-                        className={`flex-1 block w-full rounded-md p-2 focus:ring focus:ring-blue-500 ${errors.cargo ? 'border-red-500' : 'border-gray-300'
-                          }`}
+                        className={`flex-1 block w-full rounded-md p-2 focus:ring focus:ring-blue-500 ${
+                          errors.cargo ? 'border-red-500' : 'border-gray-300'
+                        }`}
                         placeholder="Digite o novo cargo..."
                         value={editedEmployee.cargo.cargo_efetivo}
                         onChange={(e) => handleCargoChange(e.target.value)}
@@ -487,8 +490,9 @@ function EditModal({
                 ) : mode === 'addVacant' ? (
                   <input
                     type="text"
-                    className={`p-2 border rounded-md w-full bg-gray-100 ${errors.cargo ? 'border-red-500' : 'border-gray-300'
-                      }`}
+                    className={`p-2 border rounded-md w-full bg-gray-100 ${
+                      errors.cargo ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     value={editedEmployee.cargo.cargo_efetivo}
                     disabled
                   />
@@ -500,8 +504,9 @@ function EditModal({
                         setCargoDropdownOpen((prev) => !prev);
                         setSymbolDropdownOpen(false);
                       }}
-                      className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${errors.cargo ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                      className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${
+                        errors.cargo ? 'border-red-500' : 'border-gray-300'
+                      }`}
                     >
                       <span>
                         {editedEmployee.cargo.cargo_efetivo || 'Selecione um cargo...'}
@@ -565,8 +570,9 @@ function EditModal({
                             setSymbolDropdownOpen((prev) => !prev);
                             setCargoDropdownOpen(false);
                           }}
-                          className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${errors.simbolo ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                          className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${
+                            errors.simbolo ? 'border-red-500' : 'border-gray-300'
+                          }`}
                         >
                           <span>
                             {editedEmployee.cargo.simbolo || 'Selecione um símbolo...'}
@@ -612,8 +618,9 @@ function EditModal({
                     ) : (
                       <input
                         type="text"
-                        className={`flex-1 block w-full rounded-md p-2 focus:ring focus:ring-blue-500 ${errors.simbolo ? 'border-red-500' : 'border-gray-300'
-                          }`}
+                        className={`flex-1 block w-full rounded-md p-2 focus:ring focus:ring-blue-500 ${
+                          errors.simbolo ? 'border-red-500' : 'border-gray-300'
+                        }`}
                         placeholder="Digite o novo símbolo..."
                         value={editedEmployee.cargo.simbolo}
                         onChange={(e) => handleSymbolChange(e.target.value)}
@@ -633,8 +640,9 @@ function EditModal({
                 ) : mode === 'addVacant' ? (
                   <input
                     type="text"
-                    className={`p-2 border rounded-md w-full bg-gray-100 ${errors.simbolo ? 'border-red-500' : 'border-gray-300'
-                      }`}
+                    className={`p-2 border rounded-md w-full bg-gray-100 ${
+                      errors.simbolo ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     value={editedEmployee.cargo.simbolo}
                     disabled
                   />
@@ -646,8 +654,9 @@ function EditModal({
                         setSymbolDropdownOpen((prev) => !prev);
                         setCargoDropdownOpen(false);
                       }}
-                      className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${errors.simbolo ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                      className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${
+                        errors.simbolo ? 'border-red-500' : 'border-gray-300'
+                      }`}
                     >
                       <span>
                         {editedEmployee.cargo.simbolo || 'Selecione um símbolo...'}
@@ -749,8 +758,9 @@ function EditModal({
               <label className="block text-sm font-medium text-gray-700">Data de Publicação</label>
               <input
                 type="date"
-                className={`mt-1 block w-full rounded-md p-2 focus:ring focus:ring-blue-500 ${errors.dtPublicacao ? 'border-red-500' : 'border-gray-300 border'
-                  }`}
+                className={`mt-1 block w-full rounded-md p-2 focus:ring focus:ring-blue-500 ${
+                  errors.dtPublicacao ? 'border-red-500' : 'border-gray-300 border'
+                }`}
                 value={editedEmployee.dtPublicacao}
                 onChange={(e) =>
                   setEditedEmployee({
@@ -769,11 +779,10 @@ function EditModal({
               <label className="block text-sm font-medium text-gray-700">Valor C.C.</label>
               <input
                 type="number"
-                className={`mt-1 block w-full rounded-md p-2 ${errors.valorCC ? 'border-red-500' : 'border-gray-300 border'
-                  }`}
+                className={`mt-1 block w-full rounded-md p-2 ${
+                  errors.valorCC ? 'border-red-500' : 'border-gray-300 border'
+                }`}
                 value={
-                  // Se estiver armazenado como string, converta para número;
-                  // mas, se já for número, use diretamente.
                   typeof editedEmployee.valorCC === 'string'
                     ? Number(editedEmployee.valorCC)
                     : editedEmployee.valorCC
@@ -781,7 +790,6 @@ function EditModal({
                 onChange={(e) =>
                   setEditedEmployee({
                     ...editedEmployee,
-                    // Salva como número
                     valorCC: Number(e.target.value)
                   })
                 }
@@ -1256,7 +1264,8 @@ export function Employees() {
     return <span className="text-green-700 font-bold">VAGO</span>;
   };
 
-  const dataPublicacaoTemplate = (emp: Employee) => {
+  // Ajustando para manter como estava (provavelmente era dtPublicacao):
+  const dataPublicacaoFixed = (emp: Employee) => {
     return emp.dtPublicacao ? formatDateToBR(emp.dtPublicacao) : '-';
   };
 
@@ -1339,6 +1348,18 @@ export function Employees() {
                 value={orgSearch}
                 onChange={(e) => setOrgSearch(e.target.value)}
               />
+
+              {/* [ALTERAÇÃO #2] - Botão "Selecionar todos" acima de "Desmarcar todos" */}
+              <div
+                className="cursor-pointer p-1 bg-gray-200 text-gray-800 font-semibold mb-2"
+                onClick={() => {
+                  setSelectedOrgs(filteredOrgOptions.map((org) => org.sigla));
+                  setOrgDropdownOpen(false);
+                }}
+              >
+                Selecionar todos
+              </div>
+
               <div
                 className="cursor-pointer p-1 bg-gray-200 text-gray-800 font-semibold mb-2"
                 onClick={() => {
@@ -1641,7 +1662,7 @@ export function Employees() {
             style={{ width: '120px' }}
             headerStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
             bodyStyle={{ verticalAlign: 'middle', textAlign: 'left' }}
-            body={dataPublicacaoTemplate}
+            body={dataPublicacaoFixed}
           />
           <Column
             header="Valor C.C."
