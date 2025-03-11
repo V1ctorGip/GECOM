@@ -43,5 +43,5 @@ export type Report = {
   id: string;
   title: string;
   description: string;
-  type: 'organizations' | 'employees' | 'positions' | 'costs';
+  type: 'organizations' | 'employees' | 'positions' | 'costs' | 'symbolQuantitative' | 'vacantByOrg'| 'symbolGeneral';
 };

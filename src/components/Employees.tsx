@@ -59,6 +59,7 @@ const transformEmployee = (emp: any): Employee => ({
   dtPublicacao: emp.data_nomeacao
     ? new Date(emp.data_nomeacao).toISOString().split('T')[0]
     : '',
+  // Converte para número; se não for possível, ficará 0
   valorCC: Number(emp.salario) || 0,
   secretaria: emp.secretaria,
   ordem: emp.ordem || 0
@@ -78,6 +79,7 @@ type EditModalProps = {
   mode: ModalMode;
   organizations: Organization[];
   positions: Position[];
+  allEmployees: Employee[]; // Lista completa para checarmos duplicidade
   isOpen: boolean;
   onClose: () => void;
   onSave: (updatedEmployee: Employee) => void;
@@ -88,6 +90,7 @@ function EditModal({
   mode,
   organizations,
   positions,
+  allEmployees,
   isOpen,
   onClose,
   onSave
@@ -96,6 +99,9 @@ function EditModal({
 
   // Erros de validação
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Controle de modal de conflito (servidor duplicado)
+  const [conflict, setConflict] = useState<{ name: string; org: string } | null>(null);
 
   // Dropdown customizado para Cargo/Símbolo + Input livre
   const [isCargoInput, setIsCargoInput] = useState(false);
@@ -117,7 +123,7 @@ function EditModal({
   const cargoRef = useRef<HTMLDivElement>(null);
   const symbolRef = useRef<HTMLDivElement>(null);
 
-  // Ao mudar employee externamente, resetar o estado local
+  // Reseta o estado local quando o employee muda
   useEffect(() => {
     setEditedEmployee({ ...employee });
     setIsCargoInput(false);
@@ -129,9 +135,26 @@ function EditModal({
     setSymbolSearch('');
     setRedisSearch('');
     setRedisDropdownOpen(false);
+    setConflict(null);
   }, [employee]);
 
-  // Fechar dropdown ao clicar fora
+  // Atualiza automaticamente o valorCC sempre que o cargo ou símbolo mudam
+  useEffect(() => {
+    if (editedEmployee.cargo.cargo_efetivo.trim() && editedEmployee.cargo.simbolo.trim()) {
+      const match = positions.find((pos) =>
+        pos.cargo_efetivo.trim().toLowerCase() === editedEmployee.cargo.cargo_efetivo.trim().toLowerCase() &&
+        pos.simbolo.trim().toLowerCase() === editedEmployee.cargo.simbolo.trim().toLowerCase()
+      );
+      if (match) {
+        setEditedEmployee((prev) => ({
+          ...prev,
+          valorCC: match.salario ?? prev.valorCC
+        }));
+      }
+    }
+  }, [editedEmployee.cargo.cargo_efetivo, editedEmployee.cargo.simbolo, positions]);
+
+  // Fecha dropdown ao clicar fora
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (cargoRef.current && !cargoRef.current.contains(event.target as Node)) {
@@ -155,48 +178,36 @@ function EditModal({
   // -----------------------------
   // LÓGICA PARA CARGO ↔ SÍMBOLO
   // -----------------------------
-
-  // Filtra "positions" considerando o símbolo escolhido (para exibir cargos)
   const relevantPositionsForCargo = useMemo(() => {
-    // Se já tiver um símbolo selecionado, só mostra cargos compatíveis com aquele símbolo
     if (editedEmployee.cargo.simbolo.trim()) {
       return positions.filter(
         (pos) =>
-          pos.simbolo.toLowerCase() ===
-          editedEmployee.cargo.simbolo.trim().toLowerCase()
+          pos.simbolo.toLowerCase() === editedEmployee.cargo.simbolo.trim().toLowerCase()
       );
     }
-    // Caso não tenha símbolo selecionado, exibe todos os cargos possíveis
     return positions;
   }, [positions, editedEmployee.cargo.simbolo]);
 
-  // Deduplica cargos relevantes
   const dedupedCargos = useMemo(() => {
     const set = new Set(relevantPositionsForCargo.map((pos) => pos.cargo_efetivo));
     return Array.from(set).sort();
   }, [relevantPositionsForCargo]);
 
-  // Filtra "positions" considerando o cargo escolhido (para exibir símbolos)
   const relevantPositionsForSymbol = useMemo(() => {
-    // Se já tiver um cargo selecionado, só mostra símbolos compatíveis com aquele cargo
     if (editedEmployee.cargo.cargo_efetivo.trim()) {
       return positions.filter(
         (pos) =>
-          pos.cargo_efetivo.toLowerCase() ===
-          editedEmployee.cargo.cargo_efetivo.trim().toLowerCase()
+          pos.cargo_efetivo.toLowerCase() === editedEmployee.cargo.cargo_efetivo.trim().toLowerCase()
       );
     }
-    // Caso não tenha cargo selecionado, exibe todos os símbolos possíveis
     return positions;
   }, [positions, editedEmployee.cargo.cargo_efetivo]);
 
-  // Deduplica símbolos relevantes
   const dedupedSymbols = useMemo(() => {
     const set = new Set(relevantPositionsForSymbol.map((pos) => pos.simbolo));
     return Array.from(set).sort();
   }, [relevantPositionsForSymbol]);
 
-  // Agora aplicamos o filtro de texto (search) em cada lista
   const filteredCargos = useMemo(() => {
     return dedupedCargos.filter((c) =>
       c.toLowerCase().includes(cargoSearch.toLowerCase())
@@ -209,7 +220,6 @@ function EditModal({
     );
   }, [dedupedSymbols, symbolSearch]);
 
-  // Opções de redistribuição (todas as siglas)
   const [orgsForRedis] = useState(() => {
     return organizations.map((o) => o.sigla).sort();
   });
@@ -219,19 +229,12 @@ function EditModal({
     );
   }, [orgsForRedis, redisSearch]);
 
-  // ------------------------------------
-  // Handlers de mudança (Cargo/Símbolo)
-  // ------------------------------------
-
-  // Ao selecionar Cargo
+  // Handlers de mudança para Cargo e Símbolo
   const handleCargoChange = (newCargo: string) => {
     setEditedEmployee((prev) => {
-      // Filtra todas as positions que tenham esse cargo
       const matches = positions.filter(
         (pos) => pos.cargo_efetivo.toLowerCase() === newCargo.toLowerCase()
       );
-
-      // Se encontrar ao menos uma, pegamos a primeira para preencher valorCC e símbolo
       if (matches.length > 0) {
         const firstMatch = matches[0];
         return {
@@ -244,8 +247,6 @@ function EditModal({
           valorCC: firstMatch.salario ?? prev.valorCC
         };
       }
-
-      // Se não encontrar nada, apenas atualiza o cargo e zera o símbolo
       return {
         ...prev,
         cargo: {
@@ -257,15 +258,15 @@ function EditModal({
     });
   };
 
-  // Ao selecionar Símbolo
+  // Adicionar este parse no símbolo
   const handleSymbolChange = (newSymbol: string) => {
     setEditedEmployee((prev) => {
-      // Filtra positions que combinem com cargo e símbolo
       const match = positions.find(
         (pos) =>
-          pos.cargo_efetivo.toLowerCase() ===
-            prev.cargo.cargo_efetivo.trim().toLowerCase() &&
-          pos.simbolo.toLowerCase() === newSymbol.toLowerCase()
+          pos.cargo_efetivo.trim().toLowerCase() ===
+          prev.cargo.cargo_efetivo.trim().toLowerCase() &&
+          pos.simbolo.trim().toLowerCase() ===
+          newSymbol.trim().toLowerCase()
       );
       if (match) {
         return {
@@ -274,10 +275,10 @@ function EditModal({
             ...prev.cargo,
             simbolo: match.simbolo
           },
-          valorCC: match.salario ?? prev.valorCC
+          // Converte 'match.salario' para número
+          valorCC: Number(match.salario) ?? prev.valorCC
         };
       }
-      // Se não encontrou, apenas atualiza o símbolo
       return {
         ...prev,
         cargo: {
@@ -288,34 +289,23 @@ function EditModal({
     });
   };
 
-  // ----------------
   // Validação simples
-  // ----------------
   const validateFields = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Nome Servidor
     if (!editedEmployee.nomeServidor.trim()) {
       newErrors.nomeServidor = 'Preencha este campo';
     }
-
-    // Cargo
     if (!editedEmployee.cargo.cargo_efetivo.trim()) {
       newErrors.cargo = 'Preencha este campo';
     }
-
-    // Símbolo
     if (!editedEmployee.cargo.simbolo.trim()) {
       newErrors.simbolo = 'Preencha este campo';
     }
-
-    // Data Publicação
     if (!editedEmployee.dtPublicacao.trim()) {
       newErrors.dtPublicacao = 'Preencha este campo';
     }
-
-    // Valor C.C.
-    if (editedEmployee.valorCC <= 0) {
+    if (Number(editedEmployee.valorCC) <= 0) {
       newErrors.valorCC = 'Preencha este campo';
     }
 
@@ -323,9 +313,7 @@ function EditModal({
     return Object.keys(newErrors).length === 0;
   };
 
-  // ----------------
   // Salvar
-  // ----------------
   const handleSave = async () => {
     if (!validateFields()) return;
 
@@ -334,21 +322,29 @@ function EditModal({
       nomeServidor: editedEmployee.nomeServidor.toUpperCase()
     };
 
+    const conflictEmp = allEmployees.find(
+      (e) =>
+        e.nomeServidor.trim().toLowerCase() === normalized.nomeServidor.trim().toLowerCase() &&
+        e.secretaria === normalized.secretaria &&
+        e.id !== normalized.id
+    );
+    if (conflictEmp) {
+      const orgObj = organizations.find((o) => o.sigla === conflictEmp.secretaria);
+      const orgName = orgObj ? orgObj.secretaria : conflictEmp.secretaria;
+      setConflict({ name: conflictEmp.nomeServidor, org: orgName });
+      return;
+    }
+
     if (mode === 'addNew') {
-      // Força status = Provido
       normalized.status = 'Provido';
 
-      // Se cargo+simbolo não existe, cria no backend
       const exists = positions.find(
         (pos) =>
-          pos.cargo_efetivo.trim().toLowerCase() ===
-            normalized.cargo.cargo_efetivo.trim().toLowerCase() &&
-          pos.simbolo.trim().toLowerCase() ===
-            normalized.cargo.simbolo.trim().toLowerCase()
+          pos.cargo_efetivo.trim().toLowerCase() === normalized.cargo.cargo_efetivo.trim().toLowerCase() &&
+          pos.simbolo.trim().toLowerCase() === normalized.cargo.simbolo.trim().toLowerCase()
       );
       if (!exists) {
-        const maxNum =
-          positions.length > 0 ? Math.max(...positions.map((p) => p.numero)) : 0;
+        const maxNum = positions.length > 0 ? Math.max(...positions.map((p) => p.numero)) : 0;
         try {
           await createPosition({
             numero: maxNum + 1,
@@ -360,432 +356,445 @@ function EditModal({
           return;
         }
       }
-
       alert('Servidor salvo com sucesso!');
       onSave(normalized);
       onClose();
     } else if (mode === 'addVacant') {
-      // Vinha com status=Vago, agora vira Provido
       normalized.status = 'Provido';
       alert('Servidor salvo com sucesso!');
       onSave(normalized);
       onClose();
     } else {
-      // Edit
       alert('Servidor salvo com sucesso!');
       onSave(normalized);
       onClose();
     }
   };
 
-  // ---------------------------------
   // Renderização do Modal
-  // ---------------------------------
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-xl relative">
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          {mode === 'addNew'
-            ? 'Adicionar Novo Servidor'
-            : mode === 'addVacant'
-            ? 'Adicionar Servidor'
-            : 'Editar Servidor'}
-        </h2>
+    <>
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-xl relative">
+          <h2 className="text-2xl font-bold mb-6 text-center">
+            {mode === 'addNew'
+              ? 'Adicionar Novo Servidor'
+              : mode === 'addVacant'
+                ? 'Adicionar Servidor'
+                : 'Editar Servidor'}
+          </h2>
 
-        <div className="space-y-4">
-          {/* Nome Servidor */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Nome Servidor</label>
-            <input
-              type="text"
-              className={`mt-1 block w-full rounded-md border p-2 focus:ring focus:ring-blue-500 ${
-                errors.nomeServidor ? 'border-red-500' : 'border-gray-300'
-              }`}
-              value={editedEmployee.nomeServidor.toUpperCase()}
-              onChange={(e) =>
-                setEditedEmployee({
-                  ...editedEmployee,
-                  nomeServidor: e.target.value.toUpperCase()
-                })
-              }
-            />
-            {errors.nomeServidor && (
-              <p className="text-red-600 text-sm mt-1">{errors.nomeServidor}</p>
-            )}
-          </div>
-
-          {/* Cargo Genérico */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Cargo Genérico</label>
-            <div className="relative" ref={cargoRef}>
-              {mode === 'addNew' ? (
-                // Modo "Adicionar Novo" => tem "+"
-                <div className="flex items-center gap-2">
-                  {!isCargoInput ? (
-                    // Dropdown
-                    <div className="relative flex-1">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCargoDropdownOpen((prev) => !prev);
-                          setSymbolDropdownOpen(false);
-                        }}
-                        className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${
-                          errors.cargo ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                      >
-                        <span>
-                          {editedEmployee.cargo.cargo_efetivo || 'Selecione um cargo...'}
-                        </span>
-                        <span className="ml-2">▼</span>
-                      </button>
-                      {cargoDropdownOpen && (
-                        <div className="absolute z-10 bg-white border shadow-md p-2 mt-1 w-full max-h-60 overflow-auto">
-                          <input
-                            type="text"
-                            className="p-2 border rounded w-full mb-2"
-                            placeholder="Pesquisar cargo..."
-                            value={cargoSearch}
-                            onChange={(e) => setCargoSearch(e.target.value)}
-                          />
-                          {filteredCargos.map((c) => (
-                            <div
-                              key={c}
-                              className="cursor-pointer p-1 hover:bg-gray-200"
-                              onClick={() => {
-                                handleCargoChange(c);
-                                setCargoDropdownOpen(false);
-                              }}
-                            >
-                              {c}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    // Input livre
-                    <input
-                      type="text"
-                      className={`flex-1 block w-full rounded-md p-2 focus:ring focus:ring-blue-500 ${
-                        errors.cargo ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                      placeholder="Digite o novo cargo..."
-                      value={editedEmployee.cargo.cargo_efetivo}
-                      onChange={(e) => handleCargoChange(e.target.value)}
-                    />
-                  )}
-                  <button
-                    type="button"
-                    className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                    onClick={() => {
-                      setIsCargoInput((prev) => !prev);
-                      setCargoDropdownOpen(false);
-                    }}
-                  >
-                    {isCargoInput ? '↩' : '+'}
-                  </button>
-                </div>
-              ) : mode === 'addVacant' ? (
-                // Modo "Adicionar Servidor" numa vaga -> campo bloqueado
-                <input
-                  type="text"
-                  className={`p-2 border rounded-md w-full bg-gray-100 ${
-                    errors.cargo ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  value={editedEmployee.cargo.cargo_efetivo}
-                  disabled
-                />
-              ) : (
-                // Modo "Edit"
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCargoDropdownOpen((prev) => !prev);
-                      setSymbolDropdownOpen(false);
-                    }}
-                    className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${
-                      errors.cargo ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                  >
-                    <span>
-                      {editedEmployee.cargo.cargo_efetivo || 'Selecione um cargo...'}
-                    </span>
-                    <span className="ml-2">▼</span>
-                  </button>
-                  {cargoDropdownOpen && (
-                    <div className="absolute z-10 bg-white border shadow-md p-2 mt-1 w-full max-h-60 overflow-auto">
-                      <input
-                        type="text"
-                        className="p-2 border rounded w-full mb-2"
-                        placeholder="Pesquisar cargo..."
-                        value={cargoSearch}
-                        onChange={(e) => setCargoSearch(e.target.value)}
-                      />
-                      {filteredCargos.map((c) => (
-                        <div
-                          key={c}
-                          className="cursor-pointer p-1 hover:bg-gray-200"
-                          onClick={() => {
-                            handleCargoChange(c);
-                            setCargoDropdownOpen(false);
-                          }}
-                        >
-                          {c}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-            {errors.cargo && (
-              <p className="text-red-600 text-sm mt-1">{errors.cargo}</p>
-            )}
-          </div>
-
-          {/* Símbolo */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Símbolo</label>
-            <div className="relative" ref={symbolRef}>
-              {mode === 'addNew' ? (
-                <div className="flex items-center gap-2">
-                  {!isSymbolInput ? (
-                    // Dropdown
-                    <div className="relative flex-1">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSymbolDropdownOpen((prev) => !prev);
-                          setCargoDropdownOpen(false);
-                        }}
-                        className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${
-                          errors.simbolo ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                      >
-                        <span>
-                          {editedEmployee.cargo.simbolo || 'Selecione um símbolo...'}
-                        </span>
-                        <span className="ml-2">▼</span>
-                      </button>
-                      {symbolDropdownOpen && (
-                        <div className="absolute z-10 bg-white border shadow-md p-2 mt-1 w-full max-h-60 overflow-auto">
-                          <input
-                            type="text"
-                            className="p-2 border rounded w-full mb-2"
-                            placeholder="Pesquisar símbolo..."
-                            value={symbolSearch}
-                            onChange={(e) => setSymbolSearch(e.target.value)}
-                          />
-                          {filteredSymbols.map((s) => (
-                            <div
-                              key={s}
-                              className="cursor-pointer p-1 hover:bg-gray-200"
-                              onClick={() => {
-                                handleSymbolChange(s);
-                                setSymbolDropdownOpen(false);
-                              }}
-                            >
-                              {s}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    // Input livre
-                    <input
-                      type="text"
-                      className={`flex-1 block w-full rounded-md p-2 focus:ring focus:ring-blue-500 ${
-                        errors.simbolo ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                      placeholder="Digite o novo símbolo..."
-                      value={editedEmployee.cargo.simbolo}
-                      onChange={(e) => handleSymbolChange(e.target.value)}
-                    />
-                  )}
-                  <button
-                    type="button"
-                    className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                    onClick={() => {
-                      setIsSymbolInput((prev) => !prev);
-                      setSymbolDropdownOpen(false);
-                    }}
-                  >
-                    {isSymbolInput ? '↩' : '+'}
-                  </button>
-                </div>
-              ) : mode === 'addVacant' ? (
-                // Campo bloqueado para "Adicionar Servidor" numa vaga
-                <input
-                  type="text"
-                  className={`p-2 border rounded-md w-full bg-gray-100 ${
-                    errors.simbolo ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  value={editedEmployee.cargo.simbolo}
-                  disabled
-                />
-              ) : (
-                // Modo Edit
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSymbolDropdownOpen((prev) => !prev);
-                      setCargoDropdownOpen(false);
-                    }}
-                    className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${
-                      errors.simbolo ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                  >
-                    <span>
-                      {editedEmployee.cargo.simbolo || 'Selecione um símbolo...'}
-                    </span>
-                    <span className="ml-2">▼</span>
-                  </button>
-                  {symbolDropdownOpen && (
-                    <div className="absolute z-10 bg-white border shadow-md p-2 mt-1 w-full max-h-60 overflow-auto">
-                      <input
-                        type="text"
-                        className="p-2 border rounded w-full mb-2"
-                        placeholder="Pesquisar símbolo..."
-                        value={symbolSearch}
-                        onChange={(e) => setSymbolSearch(e.target.value)}
-                      />
-                      {filteredSymbols.map((s) => (
-                        <div
-                          key={s}
-                          className="cursor-pointer p-1 hover:bg-gray-200"
-                          onClick={() => {
-                            handleSymbolChange(s);
-                            setSymbolDropdownOpen(false);
-                          }}
-                        >
-                          {s}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-            {errors.simbolo && (
-              <p className="text-red-600 text-sm mt-1">{errors.simbolo}</p>
-            )}
-          </div>
-
-          {/* Redistribuição - dropdown custom com pesquisa */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Redistribuição</label>
-            <div className="relative" ref={redisRef}>
-              <button
-                type="button"
-                onClick={() => setRedisDropdownOpen((prev) => !prev)}
-                className="mt-1 p-2 border rounded-md w-full text-left bg-white flex items-center justify-between border-gray-300 focus:ring focus:ring-blue-500"
-              >
-                <span>{editedEmployee.redistribuicao || 'Nenhuma'}</span>
-                <span className="ml-2">▼</span>
-              </button>
-              {redisDropdownOpen && (
-                <div className="absolute z-10 bg-white border shadow-md p-2 mt-1 w-full max-h-60 overflow-auto">
-                  <input
-                    type="text"
-                    className="p-2 border rounded w-full mb-2"
-                    placeholder="Pesquisar redistribuição..."
-                    value={redisSearch}
-                    onChange={(e) => setRedisSearch(e.target.value)}
-                  />
-                  {/* Opção de 'Nenhuma' */}
-                  <div
-                    className="cursor-pointer p-1 hover:bg-gray-200"
-                    onClick={() => {
-                      setEditedEmployee({ ...editedEmployee, redistribuicao: '' });
-                      setRedisDropdownOpen(false);
-                    }}
-                  >
-                    Nenhuma
-                  </div>
-                  {filteredRedisOptions.map((sigla) => (
-                    <div
-                      key={sigla}
-                      className="cursor-pointer p-1 hover:bg-gray-200"
-                      onClick={() => {
-                        setEditedEmployee({ ...editedEmployee, redistribuicao: sigla });
-                        setRedisDropdownOpen(false);
-                      }}
-                    >
-                      {sigla}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Data de Publicação */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Data de Publicação</label>
-            <input
-              type="date"
-              className={`mt-1 block w-full rounded-md p-2 focus:ring focus:ring-blue-500 ${
-                errors.dtPublicacao ? 'border-red-500' : 'border-gray-300 border'
-              }`}
-              value={editedEmployee.dtPublicacao}
-              onChange={(e) =>
-                setEditedEmployee({
-                  ...editedEmployee,
-                  dtPublicacao: e.target.value
-                })
-              }
-            />
-            {errors.dtPublicacao && (
-              <p className="text-red-600 text-sm mt-1">{errors.dtPublicacao}</p>
-            )}
-          </div>
-
-          {/* Valor C.C. */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Valor C.C.</label>
-            <input
-              type="number"
-              className={`mt-1 block w-full rounded-md p-2 focus:ring focus:ring-blue-500 ${
-                errors.valorCC ? 'border-red-500' : 'border-gray-300 border'
-              }`}
-              value={editedEmployee.valorCC}
-              onChange={(e) =>
-                setEditedEmployee({
-                  ...editedEmployee,
-                  valorCC: Number(e.target.value)
-                })
-              }
-              disabled={mode === 'addVacant'}  // Bloqueia se estiver adicionando em vaga
-            />
-            {errors.valorCC && (
-              <p className="text-red-600 text-sm mt-1">{errors.valorCC}</p>
-            )}
-          </div>
-
-          {/* Status */}
-          {mode === 'edit' ? (
+          <div className="space-y-4">
+            {/* Nome Servidor */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Status</label>
-              <select
-                className="mt-1 block w-full rounded-md border p-2 shadow-sm focus:ring focus:ring-blue-500 border-gray-300"
-                value={editedEmployee.status}
+              <label className="block text-sm font-medium text-gray-700">Nome Servidor</label>
+              <input
+                type="text"
+                className={`mt-1 block w-full rounded-md border p-2 focus:ring focus:ring-blue-500 ${errors.nomeServidor ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                value={editedEmployee.nomeServidor.toUpperCase()}
                 onChange={(e) =>
                   setEditedEmployee({
                     ...editedEmployee,
-                    status: e.target.value as 'Provido' | 'Vago'
+                    nomeServidor: e.target.value.toUpperCase()
                   })
                 }
-              >
-                <option value="Provido">Provido</option>
-                <option value="Vago">Vago</option>
-              </select>
+              />
+              {errors.nomeServidor && (
+                <p className="text-red-600 text-sm mt-1">{errors.nomeServidor}</p>
+              )}
             </div>
-          ) : (
-            (mode === 'addNew' || mode === 'addVacant') && (
+
+            {/* Cargo Genérico */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Cargo Genérico</label>
+              <div className="relative" ref={cargoRef}>
+                {mode === 'addNew' ? (
+                  <div className="flex items-center gap-2">
+                    {!isCargoInput ? (
+                      <div className="relative flex-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCargoDropdownOpen((prev) => !prev);
+                            setSymbolDropdownOpen(false);
+                          }}
+                          className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${errors.cargo ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                        >
+                          <span>
+                            {editedEmployee.cargo.cargo_efetivo || 'Selecione um cargo...'}
+                          </span>
+                          <span className="ml-2">▼</span>
+                        </button>
+                        {cargoDropdownOpen && (
+                          <div className="absolute z-10 bg-white border shadow-md p-2 mt-1 w-full max-h-60 overflow-auto">
+                            <input
+                              type="text"
+                              className="p-2 border rounded w-full mb-2"
+                              placeholder="Pesquisar cargo..."
+                              value={cargoSearch}
+                              onChange={(e) => setCargoSearch(e.target.value)}
+                            />
+                            <div
+                              className="cursor-pointer p-1 bg-gray-200 text-gray-800 font-semibold mb-2"
+                              onClick={() => {
+                                setEditedEmployee((prev) => ({
+                                  ...prev,
+                                  cargo: { ...prev.cargo, cargo_efetivo: '', simbolo: '' }
+                                }));
+                                setCargoDropdownOpen(false);
+                              }}
+                            >
+                              Desmarcar todos
+                            </div>
+                            {filteredCargos.map((c) => (
+                              <div
+                                key={c}
+                                className="cursor-pointer p-1 hover:bg-gray-200"
+                                onClick={() => {
+                                  handleCargoChange(c);
+                                  setCargoDropdownOpen(false);
+                                }}
+                              >
+                                {c}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <input
+                        type="text"
+                        className={`flex-1 block w-full rounded-md p-2 focus:ring focus:ring-blue-500 ${errors.cargo ? 'border-red-500' : 'border-gray-300'
+                          }`}
+                        placeholder="Digite o novo cargo..."
+                        value={editedEmployee.cargo.cargo_efetivo}
+                        onChange={(e) => handleCargoChange(e.target.value)}
+                      />
+                    )}
+                    <button
+                      type="button"
+                      className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                      onClick={() => {
+                        setIsCargoInput((prev) => !prev);
+                        setCargoDropdownOpen(false);
+                      }}
+                    >
+                      {isCargoInput ? '↩' : '+'}
+                    </button>
+                  </div>
+                ) : mode === 'addVacant' ? (
+                  <input
+                    type="text"
+                    className={`p-2 border rounded-md w-full bg-gray-100 ${errors.cargo ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                    value={editedEmployee.cargo.cargo_efetivo}
+                    disabled
+                  />
+                ) : (
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCargoDropdownOpen((prev) => !prev);
+                        setSymbolDropdownOpen(false);
+                      }}
+                      className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${errors.cargo ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                    >
+                      <span>
+                        {editedEmployee.cargo.cargo_efetivo || 'Selecione um cargo...'}
+                      </span>
+                      <span className="ml-2">▼</span>
+                    </button>
+                    {cargoDropdownOpen && (
+                      <div className="absolute z-10 bg-white border shadow-md p-2 mt-1 w-full max-h-60 overflow-auto">
+                        <input
+                          type="text"
+                          className="p-2 border rounded w-full mb-2"
+                          placeholder="Pesquisar cargo..."
+                          value={cargoSearch}
+                          onChange={(e) => setCargoSearch(e.target.value)}
+                        />
+                        <div
+                          className="cursor-pointer p-1 bg-gray-200 text-gray-800 font-semibold mb-2"
+                          onClick={() => {
+                            setEditedEmployee((prev) => ({
+                              ...prev,
+                              cargo: { ...prev.cargo, cargo_efetivo: '', simbolo: '' }
+                            }));
+                            setCargoDropdownOpen(false);
+                          }}
+                        >
+                          Desmarcar todos
+                        </div>
+                        {filteredCargos.map((c) => (
+                          <div
+                            key={c}
+                            className="cursor-pointer p-1 hover:bg-gray-200"
+                            onClick={() => {
+                              handleCargoChange(c);
+                              setCargoDropdownOpen(false);
+                            }}
+                          >
+                            {c}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              {errors.cargo && (
+                <p className="text-red-600 text-sm mt-1">{errors.cargo}</p>
+              )}
+            </div>
+
+            {/* Símbolo */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Símbolo</label>
+              <div className="relative" ref={symbolRef}>
+                {mode === 'addNew' ? (
+                  <div className="flex items-center gap-2">
+                    {!isSymbolInput ? (
+                      <div className="relative flex-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSymbolDropdownOpen((prev) => !prev);
+                            setCargoDropdownOpen(false);
+                          }}
+                          className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${errors.simbolo ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                        >
+                          <span>
+                            {editedEmployee.cargo.simbolo || 'Selecione um símbolo...'}
+                          </span>
+                          <span className="ml-2">▼</span>
+                        </button>
+                        {symbolDropdownOpen && (
+                          <div className="absolute z-10 bg-white border shadow-md p-2 mt-1 w-full max-h-60 overflow-auto">
+                            <input
+                              type="text"
+                              className="p-2 border rounded w-full mb-2"
+                              placeholder="Pesquisar símbolo..."
+                              value={symbolSearch}
+                              onChange={(e) => setSymbolSearch(e.target.value)}
+                            />
+                            <div
+                              className="cursor-pointer p-1 bg-gray-200 text-gray-800 font-semibold mb-2"
+                              onClick={() => {
+                                setEditedEmployee((prev) => ({
+                                  ...prev,
+                                  cargo: { ...prev.cargo, simbolo: '' }
+                                }));
+                                setSymbolDropdownOpen(false);
+                              }}
+                            >
+                              Desmarcar todos
+                            </div>
+                            {filteredSymbols.map((s) => (
+                              <div
+                                key={s}
+                                className="cursor-pointer p-1 hover:bg-gray-200"
+                                onClick={() => {
+                                  handleSymbolChange(s);
+                                  setSymbolDropdownOpen(false);
+                                }}
+                              >
+                                {s}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <input
+                        type="text"
+                        className={`flex-1 block w-full rounded-md p-2 focus:ring focus:ring-blue-500 ${errors.simbolo ? 'border-red-500' : 'border-gray-300'
+                          }`}
+                        placeholder="Digite o novo símbolo..."
+                        value={editedEmployee.cargo.simbolo}
+                        onChange={(e) => handleSymbolChange(e.target.value)}
+                      />
+                    )}
+                    <button
+                      type="button"
+                      className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                      onClick={() => {
+                        setIsSymbolInput((prev) => !prev);
+                        setSymbolDropdownOpen(false);
+                      }}
+                    >
+                      {isSymbolInput ? '↩' : '+'}
+                    </button>
+                  </div>
+                ) : mode === 'addVacant' ? (
+                  <input
+                    type="text"
+                    className={`p-2 border rounded-md w-full bg-gray-100 ${errors.simbolo ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                    value={editedEmployee.cargo.simbolo}
+                    disabled
+                  />
+                ) : (
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSymbolDropdownOpen((prev) => !prev);
+                        setCargoDropdownOpen(false);
+                      }}
+                      className={`p-2 border rounded-md w-full text-left bg-white flex items-center justify-between ${errors.simbolo ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                    >
+                      <span>
+                        {editedEmployee.cargo.simbolo || 'Selecione um símbolo...'}
+                      </span>
+                      <span className="ml-2">▼</span>
+                    </button>
+                    {symbolDropdownOpen && (
+                      <div className="absolute z-10 bg-white border shadow-md p-2 mt-1 w-full max-h-60 overflow-auto">
+                        <input
+                          type="text"
+                          className="p-2 border rounded w-full mb-2"
+                          placeholder="Pesquisar símbolo..."
+                          value={symbolSearch}
+                          onChange={(e) => setSymbolSearch(e.target.value)}
+                        />
+                        <div
+                          className="cursor-pointer p-1 bg-gray-200 text-gray-800 font-semibold mb-2"
+                          onClick={() => {
+                            setEditedEmployee((prev) => ({
+                              ...prev,
+                              cargo: { ...prev.cargo, simbolo: '' }
+                            }));
+                            setSymbolDropdownOpen(false);
+                          }}
+                        >
+                          Desmarcar todos
+                        </div>
+                        {filteredSymbols.map((s) => (
+                          <div
+                            key={s}
+                            className="cursor-pointer p-1 hover:bg-gray-200"
+                            onClick={() => {
+                              handleSymbolChange(s);
+                              setSymbolDropdownOpen(false);
+                            }}
+                          >
+                            {s}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              {errors.simbolo && (
+                <p className="text-red-600 text-sm mt-1">{errors.simbolo}</p>
+              )}
+            </div>
+
+            {/* Redistribuição */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Redistribuição</label>
+              <div className="relative" ref={redisRef}>
+                <button
+                  type="button"
+                  onClick={() => setRedisDropdownOpen((prev) => !prev)}
+                  className="mt-1 p-2 border rounded-md w-full text-left bg-white flex items-center justify-between border-gray-300 focus:ring focus:ring-blue-500"
+                >
+                  <span>{editedEmployee.redistribuicao || 'Nenhuma'}</span>
+                  <span className="ml-2">▼</span>
+                </button>
+                {redisDropdownOpen && (
+                  <div className="absolute z-10 bg-white border shadow-md p-2 mt-1 w-full max-h-60 overflow-auto">
+                    <input
+                      type="text"
+                      className="p-2 border rounded w-full mb-2"
+                      placeholder="Pesquisar redistribuição..."
+                      value={redisSearch}
+                      onChange={(e) => setRedisSearch(e.target.value)}
+                    />
+                    <div
+                      className="cursor-pointer p-1 hover:bg-gray-200"
+                      onClick={() => {
+                        setEditedEmployee({ ...editedEmployee, redistribuicao: '' });
+                        setRedisDropdownOpen(false);
+                      }}
+                    >
+                      Nenhuma
+                    </div>
+                    {filteredRedisOptions.map((sigla) => (
+                      <div
+                        key={sigla}
+                        className="cursor-pointer p-1 hover:bg-gray-200"
+                        onClick={() => {
+                          setEditedEmployee({ ...editedEmployee, redistribuicao: sigla });
+                          setRedisDropdownOpen(false);
+                        }}
+                      >
+                        {sigla}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Data de Publicação */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Data de Publicação</label>
+              <input
+                type="date"
+                className={`mt-1 block w-full rounded-md p-2 focus:ring focus:ring-blue-500 ${errors.dtPublicacao ? 'border-red-500' : 'border-gray-300 border'
+                  }`}
+                value={editedEmployee.dtPublicacao}
+                onChange={(e) =>
+                  setEditedEmployee({
+                    ...editedEmployee,
+                    dtPublicacao: e.target.value
+                  })
+                }
+              />
+              {errors.dtPublicacao && (
+                <p className="text-red-600 text-sm mt-1">{errors.dtPublicacao}</p>
+              )}
+            </div>
+
+            {/* Valor C.C. */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Valor C.C.</label>
+              <input
+                type="number"
+                className={`mt-1 block w-full rounded-md p-2 ${errors.valorCC ? 'border-red-500' : 'border-gray-300 border'
+                  }`}
+                value={
+                  // Se estiver armazenado como string, converta para número;
+                  // mas, se já for número, use diretamente.
+                  typeof editedEmployee.valorCC === 'string'
+                    ? Number(editedEmployee.valorCC)
+                    : editedEmployee.valorCC
+                }
+                onChange={(e) =>
+                  setEditedEmployee({
+                    ...editedEmployee,
+                    // Salva como número
+                    valorCC: Number(e.target.value)
+                  })
+                }
+                disabled={mode === 'addVacant'}
+              />
+
+              {errors.valorCC && (
+                <p className="text-red-600 text-sm mt-1">{errors.valorCC}</p>
+              )}
+            </div>
+
+            {/* Status */}
+            {mode === 'edit' ? (
               <div>
                 <label className="block text-sm font-medium text-gray-700">Status</label>
                 <select
@@ -794,35 +803,73 @@ function EditModal({
                   onChange={(e) =>
                     setEditedEmployee({
                       ...editedEmployee,
-                      status: 'Provido'
+                      status: e.target.value as 'Provido' | 'Vago'
                     })
                   }
-                  disabled={mode === 'addVacant'} // "addVacant" fica travado
                 >
                   <option value="Provido">Provido</option>
+                  <option value="Vago">Vago</option>
                 </select>
               </div>
-            )
-          )}
-        </div>
+            ) : (
+              (mode === 'addNew' || mode === 'addVacant') && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Status</label>
+                  <select
+                    className="mt-1 block w-full rounded-md border p-2 shadow-sm focus:ring focus:ring-blue-500 border-gray-300"
+                    value={editedEmployee.status}
+                    onChange={(e) =>
+                      setEditedEmployee({
+                        ...editedEmployee,
+                        status: 'Provido'
+                      })
+                    }
+                    disabled={mode === 'addVacant'}
+                  >
+                    <option value="Provido">Provido</option>
+                  </select>
+                </div>
+              )
+            )}
+          </div>
 
-        {/* Botões */}
-        <div className="mt-6 flex justify-end space-x-3">
-          <button
-            className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50 transition-colors"
-            onClick={onClose}
-          >
-            Cancelar
-          </button>
-          <button
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-            onClick={handleSave}
-          >
-            Salvar
-          </button>
+          {/* Botões */}
+          <div className="mt-6 flex justify-end space-x-3">
+            <button
+              className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50 transition-colors"
+              onClick={onClose}
+            >
+              Cancelar
+            </button>
+            <button
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              onClick={handleSave}
+            >
+              Salvar
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Modal de conflito (Servidor duplicado) */}
+      {conflict && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl">
+            <p className="text-red-600 text-lg font-semibold">
+              Servidor já nomeado - Nome: {conflict.name} em {conflict.org}
+            </p>
+            <div className="mt-4 text-right">
+              <button
+                onClick={() => setConflict(null)}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -846,13 +893,20 @@ export function Employees() {
 
   const [statusFilter, setStatusFilter] = useState('');
 
+  // ---- NOVO FILTRO (NOME SERVIDOR) ----
+  const [serverSearch, setServerSearch] = useState('');
+  const [serverDropdownOpen, setServerDropdownOpen] = useState(false);
+  const [selectedServers, setSelectedServers] = useState<string[]>([]);
+  const serverRef = useRef<HTMLDivElement>(null);
+  // -------------------------------------
+
   // Modal
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
   // Refs para fechar dropdown
   const orgRef = useRef<HTMLDivElement>(null);
-  const cargoRef = useRef<HTMLDivElement>(null);
-  const symbolRef = useRef<HTMLDivElement>(null);
+  const cargoRef2 = useRef<HTMLDivElement>(null);
+  const symbolRef2 = useRef<HTMLDivElement>(null);
 
   // Carrega dados iniciais
   useEffect(() => {
@@ -865,11 +919,13 @@ export function Employees() {
     const storedCargos = localStorage.getItem('selectedCargos');
     const storedSymbols = localStorage.getItem('selectedSymbols');
     const storedStatus = localStorage.getItem('statusFilter');
+    const storedServers = localStorage.getItem('selectedServers');
 
     if (storedOrgs) setSelectedOrgs(JSON.parse(storedOrgs));
     if (storedCargos) setSelectedCargos(JSON.parse(storedCargos));
     if (storedSymbols) setSelectedSymbols(JSON.parse(storedSymbols));
     if (storedStatus) setStatusFilter(storedStatus);
+    if (storedServers) setSelectedServers(JSON.parse(storedServers));
   }, []);
 
   // Se não tiver órgão selecionado, limpa
@@ -878,6 +934,7 @@ export function Employees() {
       setSelectedCargos([]);
       setSelectedSymbols([]);
       setStatusFilter('');
+      setSelectedServers([]);
     }
   }, [selectedOrgs]);
 
@@ -886,6 +943,7 @@ export function Employees() {
     localStorage.setItem('selectedCargos', JSON.stringify(selectedCargos));
     localStorage.setItem('selectedSymbols', JSON.stringify(selectedSymbols));
     localStorage.setItem('statusFilter', statusFilter);
+    localStorage.setItem('selectedServers', JSON.stringify(selectedServers));
     alert('Preferências salvas com sucesso!');
   };
 
@@ -899,13 +957,10 @@ export function Employees() {
       setOrganizations(orgs);
       setPositions(poss);
 
-      // Primeiro, aplicamos transform e ordenamos
       const transformed = emps.map(transformEmployee);
       transformed.sort((a, b) => a.ordem - b.ordem);
       setEmployeesData(transformed);
 
-      // Depois, repetimos o "comportamento do código antigo":
-      // ordenando o array cru e setando no state
       emps.sort((a: any, b: any) => (a.ordem || 0) - (b.ordem || 0));
       setEmployeesData(emps);
     } catch (error) {
@@ -919,11 +974,14 @@ export function Employees() {
       if (orgRef.current && !orgRef.current.contains(event.target as Node)) {
         setOrgDropdownOpen(false);
       }
-      if (cargoRef.current && !cargoRef.current.contains(event.target as Node)) {
+      if (cargoRef2.current && !cargoRef2.current.contains(event.target as Node)) {
         setCargoDropdownOpen(false);
       }
-      if (symbolRef.current && !symbolRef.current.contains(event.target as Node)) {
+      if (symbolRef2.current && !symbolRef2.current.contains(event.target as Node)) {
         setSymbolDropdownOpen(false);
+      }
+      if (serverRef.current && !serverRef.current.contains(event.target as Node)) {
+        setServerDropdownOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -932,7 +990,6 @@ export function Employees() {
     };
   }, []);
 
-  // Lista de órgãos disponíveis
   const availableOrganizations = useMemo(() => {
     return organizations.filter((org) =>
       employeesData.some((emp) => emp.secretaria === org.sigla)
@@ -946,13 +1003,11 @@ export function Employees() {
     });
   }, [availableOrganizations, orgSearch]);
 
-  // Filtra employees das orgs selecionadas
   const allRowsFromSelectedOrgs = useMemo(() => {
     if (selectedOrgs.length === 0) return [];
     return employeesData.filter((emp) => selectedOrgs.includes(emp.secretaria));
   }, [employeesData, selectedOrgs]);
 
-  // Cargos e símbolos presentes nas orgs selecionadas
   const cargoOptions = useMemo(() => {
     const setCargos = new Set(allRowsFromSelectedOrgs.map((emp) => emp.cargo.cargo_efetivo));
     return Array.from(setCargos).sort();
@@ -963,7 +1018,12 @@ export function Employees() {
     return Array.from(setSyms).sort();
   }, [allRowsFromSelectedOrgs]);
 
-  // Filtro de texto
+  const serverOptions = useMemo(() => {
+    if (selectedOrgs.length === 0) return [];
+    const setServers = new Set(allRowsFromSelectedOrgs.map((emp) => emp.nomeServidor));
+    return Array.from(setServers).sort();
+  }, [allRowsFromSelectedOrgs, selectedOrgs]);
+
   const filteredCargoOptions = useMemo(() => {
     return cargoOptions.filter((c) => c.toLowerCase().includes(cargoSearch.toLowerCase()));
   }, [cargoOptions, cargoSearch]);
@@ -972,15 +1032,21 @@ export function Employees() {
     return symbolOptions.filter((s) => s.toLowerCase().includes(symbolSearch.toLowerCase()));
   }, [symbolOptions, symbolSearch]);
 
+  const filteredServerOptions = useMemo(() => {
+    return serverOptions.filter((name) =>
+      name.toLowerCase().includes(serverSearch.toLowerCase())
+    );
+  }, [serverOptions, serverSearch]);
+
   function getMultiSelectDisplayText(list: string[]): string {
     if (list.length === 0) return 'Nenhum';
     if (list.length <= 2) return list.join(', ');
     return list.slice(0, 2).join(', ') + '...';
   }
 
-  // Filtragem final
   const filteredRows = useMemo(() => {
     if (selectedOrgs.length === 0) return [];
+
     return employeesData.filter((emp) => {
       if (!emp.cargo.cargo_efetivo || !emp.cargo.simbolo) return false;
       if (!selectedOrgs.includes(emp.secretaria)) return false;
@@ -990,24 +1056,26 @@ export function Employees() {
       if (selectedSymbols.length > 0 && !selectedSymbols.includes(emp.cargo.simbolo)) {
         return false;
       }
+      if (selectedServers.length > 0 && !selectedServers.includes(emp.nomeServidor)) {
+        return false;
+      }
       if (statusFilter && emp.status !== statusFilter) {
         return false;
       }
       return true;
     });
-  }, [employeesData, selectedOrgs, selectedCargos, selectedSymbols, statusFilter]);
+  }, [employeesData, selectedOrgs, selectedCargos, selectedSymbols, selectedServers, statusFilter]);
 
-  // Cálculos mini-cards
   const totalProvido = useMemo(() => {
     return filteredRows
       .filter((e) => e.status === 'Provido')
-      .reduce((sum, e) => sum + e.valorCC, 0);
+      .reduce((sum, e) => sum + Number(e.valorCC), 0);
   }, [filteredRows]);
 
   const totalVago = useMemo(() => {
     return filteredRows
       .filter((e) => e.status === 'Vago')
-      .reduce((sum, e) => sum + e.valorCC, 0);
+      .reduce((sum, e) => sum + Number(e.valorCC), 0);
   }, [filteredRows]);
 
   const totalGeral = totalProvido + totalVago;
@@ -1034,7 +1102,6 @@ export function Employees() {
     return orgsInFilteredData.map((o) => o.sigla).join(', ');
   }, [orgsInFilteredData]);
 
-  // CRUD
   const handleSaveEmployee = async (emp: Employee) => {
     if (emp.id === 'new') {
       try {
@@ -1086,7 +1153,6 @@ export function Employees() {
     setEditingEmployee(newEmp);
   };
 
-  // Reordenar (Drag & Drop)
   const handleRowReorder = async (e: RowReorderEvent) => {
     const reordered = e.value;
     reordered.forEach((emp, i) => {
@@ -1108,14 +1174,12 @@ export function Employees() {
     }
   };
 
-  // PDF
   const handleDownloadPDF = () => {
     const doc = new jsPDF('l', 'pt', 'a4');
     doc.setFontSize(12);
 
     const sorted = [...filteredRows].sort((a, b) => a.ordem - b.ordem);
 
-    // Agrupar por secretaria
     const grouped: Record<string, Employee[]> = {};
     for (const emp of sorted) {
       if (!grouped[emp.secretaria]) grouped[emp.secretaria] = [];
@@ -1140,7 +1204,7 @@ export function Employees() {
         status: emp.status,
         redistribuicao: emp.redistribuicao || '',
         publicacao: emp.dtPublicacao ? formatDateToBR(emp.dtPublicacao) : '-',
-        valorCC: `R$ ${emp.valorCC.toLocaleString('pt-BR', {
+        valorCC: `R$ ${Number(emp.valorCC).toLocaleString('pt-BR', {
           minimumFractionDigits: 2
         })}`
       }));
@@ -1183,9 +1247,8 @@ export function Employees() {
     doc.save('Relatorio-Servidores.pdf');
   };
 
-  // Templates de colunas
   const valorTemplate = (emp: Employee) => {
-    return `R$ ${emp.valorCC.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    return `R$ ${Number(emp.valorCC).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
   };
 
   const servidorTemplate = (emp: Employee) => {
@@ -1232,12 +1295,8 @@ export function Employees() {
     return emp.status === 'Vago' ? 'bg-green-50' : '';
   };
 
-  // -------------------------------------
-  // Render principal do componente
-  // -------------------------------------
   return (
     <div className="p-6">
-      {/* Forçar table-layout: fixed */}
       <style>
         {`
           .p-datatable-scrollable-header-table,
@@ -1251,7 +1310,6 @@ export function Employees() {
         Gerenciamento de Servidores
       </h1>
 
-      {/* Mini-card de órgão(s) */}
       {orgDisplayText && filteredRows.length > 0 && (
         <div className="flex justify-center mb-4">
           <div className="bg-indigo-100 text-indigo-800 px-4 py-2 rounded-md">
@@ -1260,9 +1318,8 @@ export function Employees() {
         </div>
       )}
 
-      {/* Filtros + Botões */}
       <div className="flex flex-col md:flex-row flex-wrap items-start justify-center gap-4 mb-4">
-        {/* MULTI-SELECT de Órgão (500px) */}
+        {/* MULTI-SELECT de Órgão */}
         <div className="relative" ref={orgRef}>
           <label className="font-medium block mb-1">Órgão:</label>
           <button
@@ -1282,6 +1339,15 @@ export function Employees() {
                 value={orgSearch}
                 onChange={(e) => setOrgSearch(e.target.value)}
               />
+              <div
+                className="cursor-pointer p-1 bg-gray-200 text-gray-800 font-semibold mb-2"
+                onClick={() => {
+                  setSelectedOrgs([]);
+                  setOrgDropdownOpen(false);
+                }}
+              >
+                Desmarcar todos
+              </div>
               <div className="max-h-60 overflow-auto">
                 {filteredOrgOptions.map((org) => {
                   const checked = selectedOrgs.includes(org.sigla);
@@ -1294,9 +1360,7 @@ export function Employees() {
                           if (ev.target.checked) {
                             setSelectedOrgs((prev) => [...prev, org.sigla]);
                           } else {
-                            setSelectedOrgs((prev) =>
-                              prev.filter((o) => o !== org.sigla)
-                            );
+                            setSelectedOrgs((prev) => prev.filter((o) => o !== org.sigla));
                           }
                         }}
                       />
@@ -1311,8 +1375,62 @@ export function Employees() {
           )}
         </div>
 
-        {/* MULTI-SELECT de Cargo (500px) */}
-        <div className="relative" ref={cargoRef}>
+        {/* MULTI-SELECT de Servidor */}
+        <div className="relative" ref={serverRef}>
+          <label className="font-medium block mb-1">Servidor:</label>
+          <button
+            type="button"
+            className="p-2 border rounded-lg min-w-[500px] text-left bg-white flex items-center justify-between"
+            onClick={() => setServerDropdownOpen((prev) => !prev)}
+          >
+            <span>{getMultiSelectDisplayText(selectedServers)}</span>
+            <span className="ml-2">▼</span>
+          </button>
+          {serverDropdownOpen && (
+            <div className="absolute z-10 bg-white border shadow-md p-2 mt-1 w-full max-w-[600px]">
+              <input
+                type="text"
+                className="p-2 border rounded w-full mb-2"
+                placeholder="Pesquisar servidor..."
+                value={serverSearch}
+                onChange={(e) => setServerSearch(e.target.value)}
+              />
+              <div
+                className="cursor-pointer p-1 bg-gray-200 text-gray-800 font-semibold mb-2"
+                onClick={() => {
+                  setSelectedServers([]);
+                  setServerDropdownOpen(false);
+                }}
+              >
+                Desmarcar todos
+              </div>
+              <div className="max-h-60 overflow-auto">
+                {filteredServerOptions.map((name) => {
+                  const checked = selectedServers.includes(name);
+                  return (
+                    <label key={name} className="flex items-center space-x-2 mb-1">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(ev) => {
+                          if (ev.target.checked) {
+                            setSelectedServers((prev) => [...prev, name]);
+                          } else {
+                            setSelectedServers((prev) => prev.filter((x) => x !== name));
+                          }
+                        }}
+                      />
+                      <span>{name}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* MULTI-SELECT de Cargo */}
+        <div className="relative" ref={cargoRef2}>
           <label className="font-medium block mb-1">Cargo:</label>
           <button
             type="button"
@@ -1331,6 +1449,15 @@ export function Employees() {
                 value={cargoSearch}
                 onChange={(e) => setCargoSearch(e.target.value)}
               />
+              <div
+                className="cursor-pointer p-1 bg-gray-200 text-gray-800 font-semibold mb-2"
+                onClick={() => {
+                  setSelectedCargos([]);
+                  setCargoDropdownOpen(false);
+                }}
+              >
+                Desmarcar todos
+              </div>
               <div className="max-h-60 overflow-auto">
                 {filteredCargoOptions.map((c) => {
                   const checked = selectedCargos.includes(c);
@@ -1370,8 +1497,8 @@ export function Employees() {
           </select>
         </div>
 
-        {/* MULTI-SELECT de Símbolo (500px) */}
-        <div className="relative" ref={symbolRef}>
+        {/* MULTI-SELECT de Símbolo */}
+        <div className="relative" ref={symbolRef2}>
           <label className="font-medium block mb-1">Símbolo:</label>
           <button
             type="button"
@@ -1390,6 +1517,15 @@ export function Employees() {
                 value={symbolSearch}
                 onChange={(e) => setSymbolSearch(e.target.value)}
               />
+              <div
+                className="cursor-pointer p-1 bg-gray-200 text-gray-800 font-semibold mb-2"
+                onClick={() => {
+                  setSelectedSymbols([]);
+                  setSymbolDropdownOpen(false);
+                }}
+              >
+                Desmarcar todos
+              </div>
               <div className="max-h-60 overflow-auto">
                 {filteredSymbolOptions.map((s) => {
                   const checked = selectedSymbols.includes(s);
@@ -1536,36 +1672,31 @@ export function Employees() {
 
       {/* MINI-CARDS */}
       <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-4 flex-wrap">
-        <div className="bg-blue-600 text-white rounded-md p-4 shadow-md">
-          <p className="font-bold">Custo Providos</p>
-          <p className="text-lg">
-            R${' '}
+        <div className="bg-blue-600 text-white rounded-md px-4 py-2 shadow-md">
+          <p className="font-bold text-lg">
+            Custo Providos: R${' '}
             {totalProvido.toLocaleString('pt-BR', {
               minimumFractionDigits: 2
             })}
           </p>
         </div>
-        <div className="bg-green-600 text-white rounded-md p-4 shadow-md">
-          <p className="font-bold">Custo Vagos</p>
-          <p className="text-lg">
-            R${' '}
+        <div className="bg-green-600 text-white rounded-md px-4 py-2 shadow-md">
+          <p className="font-bold text-lg">
+            Custo Vagos: R${' '}
             {totalVago.toLocaleString('pt-BR', {
               minimumFractionDigits: 2
             })}
           </p>
         </div>
-        <div className="bg-yellow-600 text-white rounded-md p-4 shadow-md">
-          <p className="font-bold">Qtd. Providos</p>
-          <p className="text-lg">{qtdProvidos}</p>
+        <div className="bg-yellow-600 text-white rounded-md px-4 py-2 shadow-md">
+          <p className="font-bold text-lg">Qtd. Providos: {qtdProvidos}</p>
         </div>
-        <div className="bg-red-600 text-white rounded-md p-4 shadow-md">
-          <p className="font-bold">Qtd. Vagos</p>
-          <p className="text-lg">{qtdVagos}</p>
+        <div className="bg-red-600 text-white rounded-md px-4 py-2 shadow-md">
+          <p className="font-bold text-lg">Qtd. Vagos: {qtdVagos}</p>
         </div>
-        <div className="bg-indigo-600 text-white rounded-md p-4 shadow-md">
-          <p className="font-bold">Total Salarial</p>
-          <p className="text-lg">
-            R${' '}
+        <div className="bg-indigo-600 text-white rounded-md px-4 py-2 shadow-md">
+          <p className="font-bold text-lg">
+            Total Salarial: R${' '}
             {totalGeral.toLocaleString('pt-BR', {
               minimumFractionDigits: 2
             })}
@@ -1573,13 +1704,14 @@ export function Employees() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modal (Edição/Adição) */}
       {editingEmployee && (
         <EditModal
           employee={editingEmployee}
           mode={getMode(editingEmployee)}
           organizations={organizations}
           positions={positions}
+          allEmployees={employeesData}
           isOpen={true}
           onClose={() => setEditingEmployee(null)}
           onSave={handleSaveEmployee}
